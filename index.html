@@ -1,0 +1,1434 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light" data-accent="green" data-font="inter">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>Work Log</title>
+<link rel="manifest" href="/work-log/manifest.json">
+<meta name="theme-color" content="#ffffff">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+<style>
+:root {
+  --accent-h: 152; --accent-s: 68%; --accent-l: 45%; --accent-l-2: 35%;
+  --font-family: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+}
+:root[data-accent="blue"]   { --accent-h: 220; --accent-s: 90%; --accent-l: 58%; --accent-l-2: 45%; }
+:root[data-accent="green"]  { --accent-h: 152; --accent-s: 68%; --accent-l: 45%; --accent-l-2: 35%; }
+:root[data-accent="red"]    { --accent-h: 0;   --accent-s: 78%; --accent-l: 58%; --accent-l-2: 45%; }
+:root[data-accent="purple"] { --accent-h: 265; --accent-s: 72%; --accent-l: 60%; --accent-l-2: 48%; }
+:root[data-accent="maroon"] { --accent-h: 345; --accent-s: 65%; --accent-l: 38%; --accent-l-2: 28%; }
+:root[data-accent="orange"] { --accent-h: 24;  --accent-s: 92%; --accent-l: 55%; --accent-l-2: 44%; }
+:root[data-accent="peach"]  { --accent-h: 14;  --accent-s: 85%; --accent-l: 68%; --accent-l-2: 55%; }
+:root[data-accent="teal"]   { --accent-h: 178; --accent-s: 65%; --accent-l: 45%; --accent-l-2: 35%; }
+:root[data-accent="pink"]   { --accent-h: 330; --accent-s: 80%; --accent-l: 62%; --accent-l-2: 50%; }
+:root[data-accent="slate"]  { --accent-h: 215; --accent-s: 20%; --accent-l: 55%; --accent-l-2: 42%; }
+:root[data-font="system"]  { --font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; }
+:root[data-font="inter"]   { --font-family: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
+:root[data-font="poppins"] { --font-family: "Poppins", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
+:root[data-font="roboto"]  { --font-family: "Roboto", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; }
+:root[data-font="lato"]    { --font-family: "Lato", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
+:root[data-font="nunito"]  { --font-family: "Nunito", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
+:root[data-font="montserrat"] { --font-family: "Montserrat", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
+:root[data-font="opensans"] { --font-family: "Open Sans", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
+:root[data-font="worksans"] { --font-family: "Work Sans", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
+:root[data-font="mono"]    { --font-family: ui-monospace, "SF Mono", Menlo, Monaco, monospace; }
+
+:root[data-theme="light"] {
+  --bg: #eef2ee; --bg-card: #ffffff; --bg-soft: #f6f8f6; --bg-accent-soft: #e6f4ea;
+  --border: #e8ece8; --border-2: #d8e2d8;
+  --text: #0a0f0a; --text-2: #4d5a4d; --text-3: #8a968a;
+  --primary: hsl(var(--accent-h), var(--accent-s), var(--accent-l));
+  --primary-2: hsl(var(--accent-h), var(--accent-s), var(--accent-l-2));
+  --primary-soft: hsl(var(--accent-h), var(--accent-s), var(--accent-l), 0.10);
+  --primary-soft-2: hsl(var(--accent-h), var(--accent-s), var(--accent-l), 0.18);
+  --primary-text: #ffffff;
+  --success: #1c9d52; --warning: #e8a33d; --danger: #e84848; --info: #3b8dff;
+  --shadow-card: 0 1px 2px rgba(15,30,15,0.04), 0 4px 16px rgba(15,30,15,0.04);
+  --shadow-float: 0 8px 28px rgba(15,30,15,0.10);
+  --nav-bg: #ffffff; --ring-track: #e8ece8;
+}
+:root[data-theme="dark"] {
+  --bg: #0d1310; --bg-card: #161d18; --bg-soft: #1c2620; --bg-accent-soft: #1a2b1f;
+  --border: #232e26; --border-2: #33413a;
+  --text: #f2f7f3; --text-2: #a4b2a8; --text-3: #6b7a70;
+  --primary: hsl(var(--accent-h), var(--accent-s), var(--accent-l));
+  --primary-2: hsl(var(--accent-h), var(--accent-s), var(--accent-l-2));
+  --primary-soft: hsl(var(--accent-h), var(--accent-s), var(--accent-l), 0.16);
+  --primary-soft-2: hsl(var(--accent-h), var(--accent-s), var(--accent-l), 0.24);
+  --primary-text: #ffffff;
+  --success: #2ee6a8; --warning: #ffb84d; --danger: #ff5c5c; --info: #3b8dff;
+  --shadow-card: 0 1px 2px rgba(0,0,0,0.3), 0 4px 16px rgba(0,0,0,0.3);
+  --shadow-float: 0 8px 28px rgba(0,0,0,0.5);
+  --nav-bg: #161d18; --ring-track: #232e26;
+}
+
+* { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+html, body {
+  margin: 0; padding: 0; background: var(--bg); color: var(--text);
+  font-family: var(--font-family); min-height: 100vh; width: 100%;
+  transition: background 0.3s, color 0.3s, font-family 0.2s;
+  -webkit-font-smoothing: antialiased; overflow-x: hidden;
+}
+.container { max-width: 720px; margin: 0 auto; padding: 20px 20px 120px; position: relative; z-index: 1; width: 100%; }
+.container.wide { max-width: 1100px; }
+h1 { font-size: 1.5rem; margin: 0; font-weight: 700; letter-spacing: -0.02em; }
+h2 { font-size: 1.15rem; margin: 0; font-weight: 700; }
+h3 { font-size: 1rem; margin: 0 0 14px; font-weight: 700; }
+.subtitle { font-size: 0.85rem; color: var(--text-2); text-align: center; margin: 0 0 24px; }
+input, textarea, select {
+  width: 100%; padding: 13px 16px; border: 1.5px solid var(--border); border-radius: 14px;
+  font-size: 0.95rem; font-family: inherit; margin-bottom: 12px;
+  background: var(--bg-card); color: var(--text); transition: border 0.2s, box-shadow 0.2s;
+}
+input::placeholder, textarea::placeholder { color: var(--text-3); }
+input:focus, textarea:focus, select:focus { outline: none; border-color: var(--primary); box-shadow: 0 0 0 3px var(--primary-soft); }
+textarea { min-height: 110px; resize: vertical; line-height: 1.5; }
+label { font-size: 0.72rem; font-weight: 700; color: var(--text-2); display: block; margin-bottom: 6px; }
+.btn {
+  display: inline-flex; align-items: center; justify-content: center; gap: 8px;
+  width: 100%; padding: 14px; background: var(--primary); color: var(--primary-text);
+  border: none; border-radius: 14px; font-size: 0.95rem; font-weight: 700;
+  cursor: pointer; transition: all 0.2s; text-align: center; text-decoration: none; font-family: inherit;
+}
+.btn:hover { background: var(--primary-2); }
+.btn:active { transform: scale(0.98); }
+.btn.secondary { background: var(--bg-soft); color: var(--text); border: 1.5px solid var(--border); }
+.btn.secondary:hover { background: var(--border); }
+.btn.danger { background: var(--bg-soft); color: var(--danger); border: 1.5px solid var(--danger); }
+.btn.small { width: auto; padding: 9px 16px; font-size: 0.82rem; border-radius: 10px; }
+.app-header {
+  padding: 16px 20px; display: flex; align-items: center; justify-content: space-between;
+  max-width: 720px; margin: 0 auto; position: sticky; top: 0; z-index: 20; background: var(--bg);
+}
+.app-header h2 { margin: 0; font-size: 1rem; font-weight: 700; }
+.header-actions { display: flex; gap: 10px; align-items: center; }
+.icon-btn {
+  background: var(--bg-card); border: 1.5px solid var(--border); font-size: 1rem;
+  cursor: pointer; width: 40px; height: 40px; border-radius: 14px; color: var(--text);
+  display: flex; align-items: center; justify-content: center; transition: all 0.2s;
+}
+.icon-btn:hover { background: var(--bg-soft); }
+.icon-btn:active { transform: scale(0.94); }
+.card { background: var(--bg-card); border: 1px solid var(--border); border-radius: 22px; padding: 20px; box-shadow: var(--shadow-card); margin-bottom: 16px; }
+.bottom-nav {
+  position: fixed; bottom: 16px; left: 50%; transform: translateX(-50%);
+  width: calc(100% - 32px); max-width: 480px;
+  background: var(--nav-bg); border: 1px solid var(--border); border-radius: 28px;
+  display: flex; justify-content: space-around; padding: 10px 8px; z-index: 30; box-shadow: var(--shadow-float);
+}
+.bottom-nav button {
+  background: none; border: none; cursor: pointer;
+  display: flex; flex-direction: column; align-items: center; gap: 3px;
+  color: var(--text-3); font-size: 0.62rem; font-weight: 600;
+  padding: 6px 14px; border-radius: 18px; font-family: inherit; transition: all 0.2s;
+}
+.bottom-nav button.active { color: var(--primary); background: var(--primary-soft); }
+.bottom-nav button .nav-icon { font-size: 1.2rem; line-height: 1; }
+.view { display: none; }
+.view.active { display: block; }
+
+.hero-card { background: var(--bg-card); border: 1px solid var(--border); border-radius: 28px; padding: 28px 22px 22px; margin-bottom: 16px; box-shadow: var(--shadow-card); text-align: center; position: relative; }
+.hero-title { font-size: 1.4rem; font-weight: 700; letter-spacing: -0.02em; margin-bottom: 4px; }
+.hero-sub { font-size: 0.8rem; color: var(--text-2); margin-bottom: 22px; }
+.hero-donut { position: relative; width: 240px; height: 240px; margin: 0 auto 22px; }
+.hero-donut svg { width: 100%; height: 100%; transform: rotate(-90deg); }
+.hero-donut .track { fill: none; stroke: var(--ring-track); stroke-width: 18; stroke-linecap: round; }
+.hero-donut .fill { fill: none; stroke: url(#heroGrad); stroke-width: 18; stroke-linecap: round; transition: stroke-dashoffset 0.8s cubic-bezier(0.4,0,0.2,1); }
+.hero-center { position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; }
+.hero-timer { font-size: 2rem; font-weight: 800; letter-spacing: -0.03em; font-variant-numeric: tabular-nums; line-height: 1; }
+.hero-pct { font-size: 0.75rem; font-weight: 700; color: var(--primary); margin-top: 6px; }
+.hero-label { font-size: 0.62rem; text-transform: uppercase; letter-spacing: 0.15em; font-weight: 700; color: var(--text-3); margin-top: 8px; }
+.hero-stats { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px; }
+.hero-stat { padding: 10px 6px; background: var(--bg-soft); border-radius: 14px; }
+.hero-stat-label { font-size: 0.6rem; text-transform: uppercase; letter-spacing: 0.08em; font-weight: 700; color: var(--text-3); margin-bottom: 5px; }
+.hero-stat-value { font-size: 0.9rem; font-weight: 700; font-variant-numeric: tabular-nums; letter-spacing: -0.01em; }
+.hero-stat-value.accent { color: var(--primary); }
+
+.action-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 16px; }
+.action-btn {
+  display: flex; align-items: center; gap: 12px; padding: 16px 18px;
+  border-radius: 18px; border: 1px solid var(--border); background: var(--bg-card);
+  cursor: pointer; font-family: inherit; color: var(--text); font-weight: 700; font-size: 0.88rem;
+  transition: all 0.2s; box-shadow: var(--shadow-card); text-align: left;
+}
+.action-btn:hover { border-color: var(--primary); background: var(--primary-soft); }
+.action-btn:active { transform: scale(0.98); }
+.action-btn .action-icon {
+  width: 40px; height: 40px; border-radius: 12px;
+  background: var(--primary-soft); color: var(--primary);
+  display: flex; align-items: center; justify-content: center; font-size: 1.2rem; flex-shrink: 0;
+}
+.action-btn.disabled { opacity: 0.35; pointer-events: none; }
+
+.timeline-item { display: flex; align-items: center; gap: 12px; padding: 10px 0; border-bottom: 1px solid var(--border); }
+.timeline-item:last-child { border-bottom: none; }
+.timeline-dot { width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0; }
+.timeline-label { font-size: 0.85rem; font-weight: 600; flex: 1; }
+.timeline-time { font-size: 0.82rem; color: var(--text-2); font-weight: 600; font-variant-numeric: tabular-nums; }
+
+.filter-row { display: flex; gap: 10px; margin-bottom: 16px; }
+.filter-row select { margin-bottom: 0; background: var(--bg-card); border-radius: 14px; font-weight: 600; font-size: 0.85rem; padding: 11px 14px; }
+
+.kpi-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; margin-bottom: 16px; }
+.kpi-tile { background: var(--bg-card); border: 1px solid var(--border); border-radius: 20px; padding: 16px; box-shadow: var(--shadow-card); }
+.kpi-tile .kpi-icon { width: 36px; height: 36px; border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 1.1rem; margin-bottom: 8px; background: var(--primary-soft); }
+.kpi-tile .kpi-label { font-size: 0.7rem; color: var(--text-2); font-weight: 700; text-transform: uppercase; letter-spacing: 0.04em; }
+.kpi-tile .kpi-value { font-size: 1.5rem; font-weight: 800; letter-spacing: -0.03em; font-variant-numeric: tabular-nums; line-height: 1.1; margin-top: 4px; }
+.kpi-tile .kpi-sub { font-size: 0.7rem; color: var(--text-3); font-weight: 500; margin-top: 2px; }
+.kpi-tile.success { border-color: hsl(152,68%,45%,0.4); }
+.kpi-tile.success .kpi-icon { background: hsl(152,68%,45%,0.15); color: var(--success); }
+.kpi-tile.warning { border-color: hsl(38,80%,55%,0.4); }
+.kpi-tile.warning .kpi-icon { background: hsl(38,80%,55%,0.15); color: var(--warning); }
+.kpi-tile.danger { border-color: hsl(0,70%,55%,0.4); }
+.kpi-tile.danger .kpi-icon { background: hsl(0,70%,55%,0.15); color: var(--danger); }
+.kpi-tile.info { border-color: hsl(220,90%,58%,0.4); }
+.kpi-tile.info .kpi-icon { background: hsl(220,90%,58%,0.15); color: var(--info); }
+
+.insight-banner { background: var(--bg-accent-soft); border: 1px solid var(--primary-soft-2); border-radius: 20px; padding: 18px 20px; margin-bottom: 16px; display: flex; align-items: center; gap: 14px; }
+.insight-icon { width: 44px; height: 44px; border-radius: 14px; background: var(--bg-card); color: var(--primary); display: flex; align-items: center; justify-content: center; font-size: 1.3rem; flex-shrink: 0; }
+.insight-text { flex: 1; min-width: 0; }
+.insight-title { font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.1em; font-weight: 700; color: var(--text-2); margin-bottom: 4px; }
+.insight-value { font-size: 1.4rem; font-weight: 800; letter-spacing: -0.03em; color: var(--text); line-height: 1; }
+.insight-sub { font-size: 0.75rem; color: var(--text-2); margin-top: 6px; }
+
+.chart-card { background: var(--bg-card); border: 1px solid var(--border); border-radius: 22px; padding: 20px; margin-bottom: 16px; box-shadow: var(--shadow-card); }
+.chart-head { display: flex; justify-content: space-between; align-items: center; margin-bottom: 18px; }
+.chart-title { font-size: 0.9rem; font-weight: 700; color: var(--text); }
+.chart-sub { font-size: 0.7rem; color: var(--text-3); font-weight: 600; margin-top: 2px; }
+.chart-legend { display: flex; gap: 14px; }
+.legend-item { display: flex; align-items: center; gap: 6px; font-size: 0.7rem; color: var(--text-2); font-weight: 600; }
+.legend-dot { width: 8px; height: 8px; border-radius: 50%; }
+
+.bar-chart { display: flex; align-items: flex-end; justify-content: space-between; gap: 6px; height: 160px; padding-top: 10px; }
+.bar-col { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: flex-end; height: 100%; gap: 8px; }
+.bar-fill-wrap { width: 100%; height: 100%; display: flex; align-items: flex-end; justify-content: center; }
+.bar-fill { width: 70%; max-width: 24px; background: linear-gradient(180deg, var(--primary) 0%, var(--primary-2) 100%); border-radius: 6px 6px 3px 3px; min-height: 4px; transition: height 0.6s cubic-bezier(0.4,0,0.2,1); }
+.bar-fill.partial { background: var(--ring-track); }
+.bar-label { font-size: 0.62rem; color: var(--text-3); font-weight: 700; text-transform: uppercase; }
+
+.line-chart-wrap { position: relative; width: 100%; height: 180px; padding: 10px 0; }
+.line-chart-wrap svg { width: 100%; height: 100%; overflow: visible; }
+.line-chart-grid { stroke: var(--border); stroke-width: 0.5; stroke-dasharray: 2 3; }
+.line-chart-area { fill: url(#lineGrad); opacity: 0.35; }
+.line-chart-line { fill: none; stroke: var(--primary); stroke-width: 2.5; stroke-linecap: round; stroke-linejoin: round; }
+.line-chart-point { fill: var(--primary); }
+.line-chart-point.hollow { fill: var(--bg-card); stroke: var(--primary); stroke-width: 2; }
+.line-chart-label { font-size: 9px; fill: var(--text-3); font-weight: 700; text-anchor: middle; }
+
+.hbar-chart { display: flex; flex-direction: column; gap: 12px; }
+.hbar-row { display: flex; flex-direction: column; gap: 6px; }
+.hbar-top { display: flex; justify-content: space-between; align-items: center; }
+.hbar-label { font-size: 0.8rem; font-weight: 600; }
+.hbar-value { font-size: 0.8rem; font-weight: 700; font-variant-numeric: tabular-nums; }
+.hbar-track { height: 10px; border-radius: 6px; background: var(--bg-soft); overflow: hidden; }
+.hbar-fill { height: 100%; border-radius: 6px; transition: width 0.8s cubic-bezier(0.4,0,0.2,1); }
+.hbar-fill.primary { background: linear-gradient(90deg, var(--primary), var(--primary-2)); }
+.hbar-fill.info { background: linear-gradient(90deg, var(--info), hsl(220,90%,48%)); }
+
+.heatmap { display: grid; grid-template-columns: repeat(7, 1fr); gap: 4px; }
+.heat-cell { aspect-ratio: 1; border-radius: 6px; background: var(--bg-soft); transition: all 0.2s; cursor: pointer; }
+.heat-cell.l1 { background: hsl(var(--accent-h), var(--accent-s), var(--accent-l), 0.25); }
+.heat-cell.l2 { background: hsl(var(--accent-h), var(--accent-s), var(--accent-l), 0.45); }
+.heat-cell.l3 { background: hsl(var(--accent-h), var(--accent-s), var(--accent-l), 0.65); }
+.heat-cell.l4 { background: hsl(var(--accent-h), var(--accent-s), var(--accent-l), 0.85); }
+.heat-cell.l5 { background: hsl(var(--accent-h), var(--accent-s), var(--accent-l), 1); }
+.heat-cell:hover { transform: scale(1.15); z-index: 2; }
+.heat-legend { display: flex; align-items: center; justify-content: flex-end; gap: 6px; margin-top: 12px; font-size: 0.65rem; color: var(--text-3); font-weight: 700; }
+.heat-legend-cell { width: 12px; height: 12px; border-radius: 3px; }
+
+.best-worst-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 16px; }
+.bw-card { background: var(--bg-card); border: 1px solid var(--border); border-radius: 20px; padding: 18px; box-shadow: var(--shadow-card); }
+.bw-card .bw-label { font-size: 0.65rem; text-transform: uppercase; letter-spacing: 0.08em; font-weight: 800; color: var(--text-3); margin-bottom: 8px; }
+.bw-card .bw-value { font-size: 1.4rem; font-weight: 800; letter-spacing: -0.02em; font-variant-numeric: tabular-nums; }
+.bw-card .bw-date { font-size: 0.72rem; color: var(--text-2); margin-top: 4px; font-weight: 600; }
+.bw-card.best { border-color: hsl(152,68%,45%,0.4); }
+.bw-card.best .bw-value { color: var(--success); }
+.bw-card.worst { border-color: hsl(0,70%,55%,0.4); }
+.bw-card.worst .bw-value { color: var(--danger); }
+
+.history-item { display: flex; justify-content: space-between; align-items: center; padding: 14px 16px; background: var(--bg-card); border: 1px solid var(--border); border-radius: 18px; margin-bottom: 8px; font-size: 0.85rem; }
+.history-item:hover { border-color: var(--primary); }
+.history-item .date { font-weight: 700; }
+.history-item .time { font-size: 0.72rem; color: var(--text-3); margin-top: 2px; }
+.history-item .duration { font-weight: 800; font-variant-numeric: tabular-nums; }
+
+.empty-state { text-align: center; padding: 40px 20px; color: var(--text-3); font-size: 0.9rem; }
+.empty-state .icon { font-size: 2.5rem; margin-bottom: 10px; opacity: 0.5; }
+.badge { display: inline-block; padding: 3px 10px; border-radius: 8px; font-size: 0.62rem; font-weight: 800; text-transform: uppercase; letter-spacing: 0.06em; background: var(--primary-soft); color: var(--primary); }
+.badge.muted { background: var(--bg-soft); color: var(--text-2); }
+.badge.success { background: hsl(152,68%,45%,0.15); color: var(--success); }
+.badge.warning { background: hsl(38,80%,55%,0.15); color: var(--warning); }
+
+.swatch-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(72px, 1fr)); gap: 10px; }
+.swatch { display: flex; flex-direction: column; align-items: center; gap: 6px; padding: 12px 6px; border-radius: 16px; cursor: pointer; border: 2px solid var(--border); background: var(--bg-card); transition: all 0.2s; }
+.swatch:hover { transform: translateY(-2px); }
+.swatch.active { border-color: var(--primary); background: var(--primary-soft); }
+.swatch .dot { width: 32px; height: 32px; border-radius: 50%; box-shadow: 0 4px 12px rgba(0,0,0,0.12); }
+.swatch .name { font-size: 0.65rem; font-weight: 700; color: var(--text-2); text-transform: capitalize; }
+
+.modal-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.5); z-index: 100; align-items: center; justify-content: center; padding: 16px; backdrop-filter: blur(6px); }
+.modal-overlay.active { display: flex; }
+.modal { background: var(--bg-card); border-radius: 24px; width: 100%; max-width: 560px; max-height: 92vh; overflow-y: auto; padding: 24px; animation: slideUp 0.3s cubic-bezier(0.4,0,0.2,1); box-shadow: var(--shadow-float); }
+.modal.wide { max-width: 720px; }
+@keyframes slideUp { from { transform: translateY(30px) scale(0.96); opacity: 0; } to { transform: translateY(0) scale(1); opacity: 1; } }
+.modal-actions { display: flex; gap: 10px; margin-top: 16px; }
+.modal-actions .btn { flex: 1; }
+.radio-list { display: flex; flex-direction: column; gap: 6px; margin-bottom: 8px; }
+.radio-item { display: flex; align-items: center; gap: 10px; padding: 12px 14px; border-radius: 14px; border: 1.5px solid var(--border); background: var(--bg-soft); cursor: pointer; transition: all 0.2s; font-size: 0.88rem; }
+.radio-item:hover { background: var(--border); }
+.radio-item.selected { border-color: var(--primary); background: var(--primary-soft); }
+.radio-item input { margin: 0; width: auto; accent-color: var(--primary); }
+.radio-item .txt { flex: 1; font-weight: 600; }
+.confirm-preview { font-size: 0.88rem; color: var(--text); background: var(--bg-soft); padding: 14px 16px; border-radius: 14px; border: 1.5px solid var(--border); word-break: break-word; margin-bottom: 8px; line-height: 1.5; }
+.section-title { font-size: 0.7rem; font-weight: 800; text-transform: uppercase; letter-spacing: 0.08em; color: var(--text-3); margin: 18px 0 10px; }
+.section-title:first-child { margin-top: 0; }
+.toast { position: fixed; bottom: 110px; left: 50%; transform: translateX(-50%) translateY(20px); background: var(--text); color: var(--bg-card); padding: 13px 22px; border-radius: 14px; font-size: 0.85rem; font-weight: 600; z-index: 200; opacity: 0; transition: all 0.3s; pointer-events: none; box-shadow: var(--shadow-float); max-width: 90%; text-align: center; }
+.toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+
+.login-screen { min-height: 100vh; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 40px 20px; background: var(--bg); position: relative; }
+.login-theme { position: absolute; top: 20px; right: 20px; }
+.login-logo { width: 76px; height: 76px; border-radius: 22px; background: var(--primary); display: flex; align-items: center; justify-content: center; font-size: 2.2rem; margin-bottom: 20px; box-shadow: 0 12px 32px var(--primary-soft-2); }
+.login-title { font-size: 1.8rem; font-weight: 800; letter-spacing: -0.03em; margin: 0 0 6px; text-align: center; }
+.login-tagline { font-size: 0.9rem; color: var(--text-2); margin: 0 0 30px; text-align: center; }
+.login-card { width: 100%; max-width: 400px; background: var(--bg-card); border: 1px solid var(--border); border-radius: 24px; padding: 26px; box-shadow: var(--shadow-card); }
+.login-card input { font-size: 1rem; padding: 14px 16px; margin-bottom: 14px; }
+.login-footer { margin-top: 36px; text-align: center; padding-top: 20px; width: 100%; max-width: 400px; }
+.designer-line { font-size: 0.68rem; color: var(--text-3); text-transform: uppercase; letter-spacing: 0.15em; font-weight: 700; margin-bottom: 6px; }
+.designer-name { font-size: 1.05rem; font-weight: 800; letter-spacing: -0.02em; color: var(--primary); }
+.designer-meta { font-size: 0.7rem; color: var(--text-3); margin-top: 8px; }
+
+@media (max-width: 420px) {
+  .hero-timer { font-size: 1.8rem; }
+  .hero-donut { width: 200px; height: 200px; }
+  .login-title { font-size: 1.6rem; }
+  .kpi-tile .kpi-value { font-size: 1.3rem; }
+}
+@media (min-width: 720px) {
+  .action-grid { grid-template-columns: repeat(4, 1fr); }
+  .kpi-grid { grid-template-columns: repeat(3, 1fr); }
+}
+</style>
+</head>
+<body>
+
+<div id="view-login" class="view">
+  <div class="login-screen">
+    <div class="login-theme"><button class="icon-btn" data-theme-toggle>🌙</button></div>
+    <div class="login-logo">💼</div>
+    <h1 class="login-title">Work Log</h1>
+    <p class="login-tagline">Your daily work companion</p>
+    <div class="login-card">
+      <label for="username">Your name</label>
+      <input type="text" id="username" placeholder="e.g. Pruthvi raj" autocomplete="name" autofocus>
+      <button class="btn" id="loginBtn">Continue →</button>
+      <div style="text-align:center; font-size:0.72rem; color:var(--text-3); margin-top:16px;">🔒 All data stays on this device only</div>
+    </div>
+    <div class="login-footer">
+      <div class="designer-line">Designed &amp; Developed by</div>
+      <div class="designer-name">Pruthvi raj</div>
+      <div class="designer-meta">v8.0 · Made with ⚡ in India</div>
+    </div>
+  </div>
+</div>
+
+<div id="view-work" class="view">
+  <div class="app-header">
+    <h2 id="workGreeting">Hello</h2>
+    <div class="header-actions"><button class="icon-btn" data-theme-toggle>🌙</button></div>
+  </div>
+  <div class="container">
+    <div class="hero-card">
+      <div class="hero-title">Today</div>
+      <div class="hero-sub" id="heroDate">—</div>
+      <div class="hero-donut">
+        <svg viewBox="0 0 100 100">
+          <defs>
+            <linearGradient id="heroGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+              <stop offset="0%" stop-color="hsl(var(--accent-h), var(--accent-s), var(--accent-l))"/>
+              <stop offset="100%" stop-color="hsl(var(--accent-h), var(--accent-s), var(--accent-l-2))"/>
+            </linearGradient>
+          </defs>
+          <circle class="track" cx="50" cy="50" r="40"/>
+          <circle class="fill" id="heroFill" cx="50" cy="50" r="40" stroke-dasharray="251.33" stroke-dashoffset="251.33"/>
+        </svg>
+        <div class="hero-center">
+          <div class="hero-timer" id="timerValue">00:00:00</div>
+          <div class="hero-pct" id="timerPct">0% complete</div>
+          <div class="hero-label" id="timerStatus">Not Started</div>
+        </div>
+      </div>
+      <div class="hero-stats">
+        <div class="hero-stat"><div class="hero-stat-label">Login</div><div class="hero-stat-value" id="statLogin">—</div></div>
+        <div class="hero-stat"><div class="hero-stat-label">Pending</div><div class="hero-stat-value accent" id="statPending">—</div></div>
+        <div class="hero-stat"><div class="hero-stat-label">Logout</div><div class="hero-stat-value" id="statLogout">—</div></div>
+      </div>
+    </div>
+    <div class="action-grid">
+      <button class="action-btn" id="btnLogin" data-action="login"><span class="action-icon">🟢</span><span>Started Working</span></button>
+      <button class="action-btn" id="btnLunch" data-action="lunch"><span class="action-icon">🍽️</span><span>Lunch Break</span></button>
+      <button class="action-btn" id="btnBack" data-action="back"><span class="action-icon">🔙</span><span>Back to Work</span></button>
+      <button class="action-btn" id="btnLogout" data-action="logout"><span class="action-icon">🔴</span><span>Logout</span></button>
+    </div>
+    <div class="card">
+      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:14px;">
+        <h3 style="margin:0;">Today's Activity</h3>
+        <span class="badge" id="todayStatus">Idle</span>
+      </div>
+      <div id="todayTimeline"><div class="empty-state" style="padding:20px;"><div class="icon">📋</div>No activity yet today.</div></div>
+    </div>
+  </div>
+</div>
+
+<div id="view-history" class="view">
+  <div class="app-header">
+    <h2>Dashboard</h2>
+    <div class="header-actions">
+      <button class="icon-btn" id="downloadXlsxBtn" title="Download XLSX">⬇️</button>
+      <button class="icon-btn" data-theme-toggle>🌙</button>
+    </div>
+  </div>
+  <div class="container wide">
+    <div class="filter-row">
+      <select id="filterMonth"></select>
+      <select id="filterYear"></select>
+    </div>
+
+    <div class="insight-banner">
+      <div class="insight-icon" id="insightIcon">💡</div>
+      <div class="insight-text">
+        <div class="insight-title" id="insightTitle">Insight</div>
+        <div class="insight-value" id="insightValue">—</div>
+        <div class="insight-sub" id="insightSub">—</div>
+      </div>
+    </div>
+
+    <div class="kpi-grid">
+      <div class="kpi-tile success"><div class="kpi-icon">✅</div><div class="kpi-label">Completed</div><div class="kpi-value" id="statComplete">0</div><div class="kpi-sub" id="statCompleteSub">days met target</div></div>
+      <div class="kpi-tile warning"><div class="kpi-icon">⏳</div><div class="kpi-label">Incomplete</div><div class="kpi-value" id="statIncomplete">0</div><div class="kpi-sub" id="statIncompleteSub">days short</div></div>
+      <div class="kpi-tile danger"><div class="kpi-icon">🔥</div><div class="kpi-label">Overworked</div><div class="kpi-value" id="statOver">0</div><div class="kpi-sub" id="statOverSub">days above target</div></div>
+      <div class="kpi-tile info"><div class="kpi-icon">📅</div><div class="kpi-label">Days worked</div><div class="kpi-value" id="statWorked">0</div><div class="kpi-sub" id="statWorkedSub">this period</div></div>
+      <div class="kpi-tile"><div class="kpi-icon">⚡</div><div class="kpi-label">Total hours</div><div class="kpi-value" id="statTotal">0h</div><div class="kpi-sub">this period</div></div>
+      <div class="kpi-tile"><div class="kpi-icon">📊</div><div class="kpi-label">Avg / day</div><div class="kpi-value" id="statAvg">0h</div><div class="kpi-sub">average</div></div>
+    </div>
+
+    <div class="best-worst-grid">
+      <div class="bw-card best"><div class="bw-label">🏆 Best day</div><div class="bw-value" id="statMax">0h</div><div class="bw-date" id="statMaxDate">—</div></div>
+      <div class="bw-card worst"><div class="bw-label">📉 Worst day</div><div class="bw-value" id="statMin">0h</div><div class="bw-date" id="statMinDate">—</div></div>
+    </div>
+
+    <div class="chart-card">
+      <div class="chart-head">
+        <div><div class="chart-title">Daily hours</div><div class="chart-sub">Last 14 days</div></div>
+        <div class="chart-legend">
+          <div class="legend-item"><div class="legend-dot" style="background:var(--primary);"></div>Met</div>
+          <div class="legend-item"><div class="legend-dot" style="background:var(--ring-track);"></div>Partial</div>
+        </div>
+      </div>
+      <div class="bar-chart" id="chartBar"></div>
+    </div>
+
+    <div class="chart-card">
+      <div class="chart-head"><div><div class="chart-title">Trend</div><div class="chart-sub">Hourly flow across the period</div></div></div>
+      <div class="line-chart-wrap"><svg id="lineChart" viewBox="0 0 320 180" preserveAspectRatio="none"></svg></div>
+    </div>
+
+    <div class="chart-card">
+      <div class="chart-head"><div><div class="chart-title">Day of week</div><div class="chart-sub">Average hours per weekday</div></div></div>
+      <div class="hbar-chart" id="weekdayChart"></div>
+    </div>
+
+    <div class="chart-card">
+      <div class="chart-head"><div><div class="chart-title">Activity heatmap</div><div class="chart-sub">Last 12 weeks</div></div></div>
+      <div class="heatmap" id="heatmap"></div>
+      <div class="heat-legend">
+        <span>Less</span>
+        <div class="heat-legend-cell" style="background:var(--bg-soft);"></div>
+        <div class="heat-legend-cell" style="background:hsl(var(--accent-h), var(--accent-s), var(--accent-l), 0.25);"></div>
+        <div class="heat-legend-cell" style="background:hsl(var(--accent-h), var(--accent-s), var(--accent-l), 0.5);"></div>
+        <div class="heat-legend-cell" style="background:hsl(var(--accent-h), var(--accent-s), var(--accent-l), 0.75);"></div>
+        <div class="heat-legend-cell" style="background:hsl(var(--accent-h), var(--accent-s), var(--accent-l));"></div>
+        <span>More</span>
+      </div>
+    </div>
+
+    <div class="chart-card">
+      <div class="chart-head"><div><div class="chart-title">Completion breakdown</div><div class="chart-sub">Success rate for the period</div></div></div>
+      <div style="display:flex; align-items:center; gap:24px; flex-wrap:wrap;">
+        <div style="position:relative; width:140px; height:140px; flex-shrink:0;">
+          <svg viewBox="0 0 100 100" style="width:100%; height:100%; transform:rotate(-90deg);">
+            <circle cx="50" cy="50" r="42" fill="none" stroke="var(--ring-track)" stroke-width="14"/>
+            <circle id="donutComplete" cx="50" cy="50" r="42" fill="none" stroke="var(--success)" stroke-width="14" stroke-dasharray="263.89" stroke-dashoffset="263.89"/>
+            <circle id="donutIncomplete" cx="50" cy="50" r="42" fill="none" stroke="var(--warning)" stroke-width="14" stroke-dasharray="263.89" stroke-dashoffset="263.89"/>
+            <circle id="donutOver" cx="50" cy="50" r="42" fill="none" stroke="var(--primary)" stroke-width="14" stroke-dasharray="263.89" stroke-dashoffset="263.89"/>
+          </svg>
+          <div style="position:absolute; inset:0; display:flex; flex-direction:column; align-items:center; justify-content:center;">
+            <div style="font-size:1.4rem; font-weight:800; font-variant-numeric:tabular-nums;" id="donutPct">0%</div>
+            <div style="font-size:0.6rem; color:var(--text-3); text-transform:uppercase; letter-spacing:0.1em; font-weight:800;">Success</div>
+          </div>
+        </div>
+        <div style="flex:1; min-width:160px; display:flex; flex-direction:column; gap:12px;">
+          <div style="display:flex; align-items:center; gap:10px;"><div style="width:12px; height:12px; border-radius:4px; background:var(--success);"></div><div style="flex:1; font-size:0.85rem; color:var(--text-2); font-weight:600;">Completed</div><div style="font-weight:800;" id="legendComplete">0</div></div>
+          <div style="display:flex; align-items:center; gap:10px;"><div style="width:12px; height:12px; border-radius:4px; background:var(--warning);"></div><div style="flex:1; font-size:0.85rem; color:var(--text-2); font-weight:600;">Incomplete</div><div style="font-weight:800;" id="legendIncomplete">0</div></div>
+          <div style="display:flex; align-items:center; gap:10px;"><div style="width:12px; height:12px; border-radius:4px; background:var(--primary);"></div><div style="flex:1; font-size:0.85rem; color:var(--text-2); font-weight:600;">Overworked</div><div style="font-weight:800;" id="legendOver">0</div></div>
+        </div>
+      </div>
+    </div>
+
+    <div style="display:flex; justify-content:space-between; align-items:center; margin: 20px 4px 12px;">
+      <h3 style="margin:0;">Daily Records</h3>
+      <span class="badge" id="historyCount">0 days</span>
+    </div>
+    <div id="historyList"></div>
+  </div>
+</div>
+
+<div id="view-settings" class="view">
+  <div class="app-header">
+    <h2>Settings</h2>
+    <div class="header-actions">
+      <button class="icon-btn" data-theme-toggle>🌙</button>
+      <button class="icon-btn" id="logoutBtn" title="Logout">🚪</button>
+    </div>
+  </div>
+  <div class="container">
+    <div class="card">
+      <h3>🎨 Appearance</h3>
+      <label>Accent Colour</label>
+      <div class="swatch-grid" id="colorGrid"></div>
+      <label style="margin-top:16px;">Font Family</label>
+      <select id="fontSelect"></select>
+    </div>
+    <div class="card">
+      <h3>⏱️ Working Hours</h3>
+      <div style="display:flex; gap:10px;">
+        <div style="flex:1;"><label>Hours</label><input type="number" id="whHours" min="0" max="23" value="9"></div>
+        <div style="flex:1;"><label>Minutes</label><input type="number" id="whMins" min="0" max="59" value="0"></div>
+      </div>
+      <div style="display:flex; gap:10px;">
+        <div style="flex:1;"><label>Break Hours</label><input type="number" id="breakHours" min="0" max="5" value="1"></div>
+        <div style="flex:1;"><label>Break Minutes</label><input type="number" id="breakMins" min="0" max="59" value="0"></div>
+      </div>
+      <label>Time Format</label>
+      <select id="timeFormat">
+        <option value="12">12-hour (default)</option>
+        <option value="24">24-hour</option>
+      </select>
+      <button class="btn" id="saveWorkSettings">Save Work Settings</button>
+    </div>
+    <div class="card">
+      <h3>💬 WhatsApp Messages</h3>
+      <p style="font-size:0.78rem; color:var(--text-2); margin:0 0 14px;">Add multiple options per action. The one marked <strong>Default</strong> is pre-selected.</p>
+      <div id="msgSections"></div>
+      <label style="margin-top:12px;">WhatsApp Group Link (optional)</label>
+      <input type="text" id="waGroupLink" placeholder="https://chat.whatsapp.com/...">
+      <button class="btn" id="saveMsgSettings" style="margin-top:8px;">Save Messages</button>
+    </div>
+    <div class="card">
+      <h3>🔔 Notifications</h3>
+      <button class="btn secondary" id="testNotifBtn">Send test notification</button>
+      <p style="font-size:0.72rem; color:var(--text-3); margin-top:10px; text-align:center;">Notifications use your phone's native notification system.</p>
+    </div>
+    <div class="card">
+      <h3>⚠️ Data</h3>
+      <button class="btn secondary" id="clearHistoryBtn" style="margin-bottom:10px;">Clear Work History</button>
+      <button class="btn secondary" id="resetAllBtn">Reset Everything</button>
+    </div>
+    <div style="text-align:center; margin-top:24px; font-size:0.72rem; color:var(--text-3);">Designed &amp; Developed by <span style="color:var(--primary); font-weight:700;">Pruthvi raj</span></div>
+  </div>
+</div>
+
+<div class="modal-overlay" id="confirmOverlay">
+  <div class="modal">
+    <h3 id="confirmTitle">Confirm</h3>
+    <p id="confirmMessage" style="font-size:0.88rem; color:var(--text-2); margin:0 0 14px;"></p>
+    <div class="section-title">Choose message</div>
+    <div class="radio-list" id="confirmMsgList"></div>
+    <div class="section-title">Preview</div>
+    <div class="confirm-preview" id="confirmPreview">—</div>
+    <div class="modal-actions">
+      <button class="btn secondary" id="confirmCancel">Cancel</button>
+      <button class="btn" id="confirmOk">Open WhatsApp</button>
+    </div>
+  </div>
+</div>
+
+<div class="modal-overlay" id="verifyOverlay">
+  <div class="modal">
+    <h3 id="verifyTitle">Confirm your action</h3>
+    <p id="verifyMessage" style="font-size:0.88rem; color:var(--text-2); margin:0 0 16px;">Tap <strong>Yes</strong> to confirm you sent the message in WhatsApp.</p>
+    <div class="confirm-preview" id="verifyPreview">—</div>
+    <div class="modal-actions">
+      <button class="btn secondary" id="verifyNo">No, retry</button>
+      <button class="btn" id="verifyYes">Yes, confirm</button>
+    </div>
+  </div>
+</div>
+
+<div class="bottom-nav" id="bottomNav" style="display:none;">
+  <button data-nav="work" class="active"><span class="nav-icon">⏱️</span><span>Work</span></button>
+  <button data-nav="history"><span class="nav-icon">📊</span><span>Dashboard</span></button>
+  <button data-nav="settings"><span class="nav-icon">⚙️</span><span>Settings</span></button>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+const KEYS = {
+  USER: "wm_user", THEME: "wm_theme", ACCENT: "wm_accent", FONT: "wm_font",
+  WORK_SETTINGS: "wm_work_settings", MSG_SETTINGS: "wm_msg_settings",
+  HISTORY: "wm_history", ACTIVE_SESSION: "wm_active_session"
+};
+
+const COLORS = [
+  { id: "green", name: "Green", color: "#2ab27a" },
+  { id: "blue", name: "Blue", color: "#3b8dff" },
+  { id: "red", name: "Red", color: "#ef4444" },
+  { id: "purple", name: "Purple", color: "#a78bfa" },
+  { id: "maroon", name: "Maroon", color: "#a83232" },
+  { id: "orange", name: "Orange", color: "#f97316" },
+  { id: "peach", name: "Peach", color: "#ff9e80" },
+  { id: "teal", name: "Teal", color: "#14b8a6" },
+  { id: "pink", name: "Pink", color: "#ec4899" },
+  { id: "slate", name: "Slate", color: "#64748b" }
+];
+
+const FONTS = [
+  { id: "inter", name: "Inter", google: "Inter:wght@400;600;700;800" },
+  { id: "system", name: "System Default" },
+  { id: "poppins", name: "Poppins", google: "Poppins:wght@400;600;700;800" },
+  { id: "roboto", name: "Roboto", google: "Roboto:wght@400;500;700;900" },
+  { id: "lato", name: "Lato", google: "Lato:wght@400;700;900" },
+  { id: "nunito", name: "Nunito", google: "Nunito:wght@400;600;700;800" },
+  { id: "montserrat", name: "Montserrat", google: "Montserrat:wght@400;600;700;800" },
+  { id: "opensans", name: "Open Sans", google: "Open+Sans:wght@400;600;700;800" },
+  { id: "worksans", name: "Work Sans", google: "Work+Sans:wght@400;600;700;800" },
+  { id: "mono", name: "Monospace" }
+];
+
+const DEFAULT_WORK_SETTINGS = { workHours: 9, workMins: 0, breakHours: 1, breakMins: 0, timeFormat: "12" };
+const DEFAULT_MSG_SETTINGS = {
+  login: { options: ["Started Working", "Logged In", "Day Started", "Reached Office"], default: "Started Working" },
+  lunch: { options: ["Going for Lunch Break", "Lunch Break", "Having Lunch"], default: "Going for Lunch Break" },
+  back: { options: ["Back to Work", "Resuming Work", "Back from Lunch"], default: "Back to Work" },
+  logout: { options: ["Logged Out for the day", "Signing Off", "Day Ended", "Leaving Office"], default: "Logged Out for the day" },
+  groupLink: ""
+};
+
+function get(key, fallback) { try { const raw = localStorage.getItem(key); return raw ? JSON.parse(raw) : fallback; } catch { return fallback; } }
+function set(key, val) { localStorage.setItem(key, JSON.stringify(val)); }
+function getUser() { return localStorage.getItem(KEYS.USER) || ""; }
+function setUser(n) { localStorage.setItem(KEYS.USER, n); }
+function getWorkSettings() {
+  const raw = get(KEYS.WORK_SETTINGS, null);
+  if (!raw) { set(KEYS.WORK_SETTINGS, DEFAULT_WORK_SETTINGS); return { ...DEFAULT_WORK_SETTINGS }; }
+  return { ...DEFAULT_WORK_SETTINGS, ...raw };
+}
+function getMsgSettings() {
+  const raw = get(KEYS.MSG_SETTINGS, null);
+  if (!raw) { set(KEYS.MSG_SETTINGS, DEFAULT_MSG_SETTINGS); return JSON.parse(JSON.stringify(DEFAULT_MSG_SETTINGS)); }
+  const migrated = { ...DEFAULT_MSG_SETTINGS, ...raw };
+  ["login","lunch","back","logout"].forEach(k => {
+    const v = migrated[k];
+    if (typeof v === "string") migrated[k] = { options: [v], default: v };
+    else if (!v || !Array.isArray(v.options)) migrated[k] = JSON.parse(JSON.stringify(DEFAULT_MSG_SETTINGS[k]));
+    else {
+      if (!v.options.length) v.options = [DEFAULT_MSG_SETTINGS[k].default];
+      if (!v.default || !v.options.includes(v.default)) v.default = v.options[0];
+    }
+  });
+  return migrated;
+}
+function getHistory() { return get(KEYS.HISTORY, []); }
+function setHistory(h) { set(KEYS.HISTORY, h); }
+function getActiveSession() { return get(KEYS.ACTIVE_SESSION, null); }
+function setActiveSession(s) { set(KEYS.ACTIVE_SESSION, s); }
+
+function loadGoogleFont(fontDef) {
+  if (!fontDef || !fontDef.google) return;
+  const id = "gf-" + fontDef.id;
+  if (document.getElementById(id)) return;
+  const link = document.createElement("link");
+  link.id = id; link.rel = "stylesheet";
+  link.href = "https://fonts.googleapis.com/css2?family=" + fontDef.google + "&display=swap";
+  document.head.appendChild(link);
+}
+
+function applyAccent(id) {
+  document.documentElement.setAttribute("data-accent", id);
+  localStorage.setItem(KEYS.ACCENT, id);
+  document.querySelectorAll(".swatch").forEach(sw => sw.classList.toggle("active", sw.dataset.accent === id));
+}
+function applyFont(id) {
+  document.documentElement.setAttribute("data-font", id);
+  localStorage.setItem(KEYS.FONT, id);
+  loadGoogleFont(FONTS.find(f => f.id === id));
+  const sel = document.getElementById("fontSelect");
+  if (sel) sel.value = id;
+}
+function applyTheme(t) {
+  document.documentElement.setAttribute("data-theme", t);
+  localStorage.setItem(KEYS.THEME, t);
+  const isDark = t === "dark";
+  document.querySelectorAll("[data-theme-toggle]").forEach(btn => btn.textContent = isDark ? "☀️" : "🌙");
+  const meta = document.querySelector('meta[name="theme-color"]');
+  if (meta) meta.setAttribute("content", isDark ? "#0d1310" : "#eef2ee");
+}
+function toggleTheme() { const cur = localStorage.getItem(KEYS.THEME) || "light"; applyTheme(cur === "dark" ? "light" : "dark"); }
+function initAppearance() {
+  const savedTheme = localStorage.getItem(KEYS.THEME);
+  if (savedTheme) applyTheme(savedTheme);
+  else applyTheme(window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light");
+  applyAccent(localStorage.getItem(KEYS.ACCENT) || "green");
+  applyFont(localStorage.getItem(KEYS.FONT) || "inter");
+}
+
+function renderColorGrid() {
+  const grid = document.getElementById("colorGrid");
+  grid.innerHTML = "";
+  const current = localStorage.getItem(KEYS.ACCENT) || "green";
+  COLORS.forEach(c => {
+    const el = document.createElement("div");
+    el.className = "swatch" + (c.id === current ? " active" : "");
+    el.dataset.accent = c.id;
+    el.innerHTML = '<div class="dot" style="background:'+c.color+';"></div><div class="name">'+c.name+'</div>';
+    el.addEventListener("click", () => { applyAccent(c.id); renderColorGrid(); showToast(c.name + " applied"); });
+    grid.appendChild(el);
+  });
+}
+function renderFontSelect() {
+  const sel = document.getElementById("fontSelect");
+  sel.innerHTML = "";
+  FONTS.forEach(f => {
+    const opt = document.createElement("option");
+    opt.value = f.id; opt.textContent = f.name;
+    sel.appendChild(opt);
+  });
+  sel.value = localStorage.getItem(KEYS.FONT) || "inter";
+  sel.onchange = () => { applyFont(sel.value); const f = FONTS.find(x => x.id === sel.value); showToast(f.name + " applied"); };
+}
+
+function getDateParts() {
+  const now = new Date();
+  const months = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
+  const days = ["Sunday","Monday","Tuesday","Wednesday","Thursday","Friday","Saturday"];
+  const day = String(now.getDate()).padStart(2,"0");
+  const monthNum = String(now.getMonth()+1).padStart(2,"0");
+  const year = now.getFullYear();
+  return {
+    date: day + " " + months[now.getMonth()] + " " + year,
+    dateISO: year + "-" + monthNum + "-" + day,
+    day: days[now.getDay()],
+    time: String(now.getHours()).padStart(2,"0") + ":" + String(now.getMinutes()).padStart(2,"0"),
+    year: String(year), month: months[now.getMonth()], monthNum: monthNum, dateNum: day
+  };
+}
+function formatTime(d) {
+  const dt = new Date(d);
+  const h = dt.getHours();
+  const m = String(dt.getMinutes()).padStart(2,"0");
+  const ws = getWorkSettings();
+  if (ws.timeFormat === "24") return String(h).padStart(2,"0") + ":" + m;
+  const ampm = h >= 12 ? "PM" : "AM";
+  const h12 = h % 12 || 12;
+  return String(h12).padStart(2,"0") + ":" + m;
+}
+function formatDuration(ms) {
+  if (ms < 0) ms = 0;
+  const totalSec = Math.floor(ms / 1000);
+  const h = Math.floor(totalSec / 3600);
+  const m = Math.floor((totalSec % 3600) / 60);
+  const s = totalSec % 60;
+  return String(h).padStart(2,"0") + ":" + String(m).padStart(2,"0") + ":" + String(s).padStart(2,"0");
+}
+function formatDurationHM(ms) {
+  if (ms < 0) ms = 0;
+  const totalMin = Math.floor(ms / 60000);
+  const h = Math.floor(totalMin / 60);
+  const m = totalMin % 60;
+  return h + "h " + m + "m";
+}
+
+let toastTimer;
+function showToast(msg) {
+  const t = document.getElementById("toast");
+  t.textContent = msg;
+  t.classList.add("show");
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => t.classList.remove("show"), 2500);
+}
+
+async function requestNotificationPermission() {
+  if (!("Notification" in window)) return;
+  if (Notification.permission === "default") { try { await Notification.requestPermission(); } catch {} }
+}
+async function sendNativeNotification(title, body, tag) {
+  tag = tag || "wm-" + Date.now();
+  if (!("Notification" in window) || Notification.permission !== "granted") { showToast(title + " · " + body); return; }
+  try {
+    const reg = await navigator.serviceWorker.ready;
+    if (reg && reg.showNotification) {
+      await reg.showNotification(title, {
+        body: body, tag: tag,
+        icon: "/work-log/icon-192.png",
+        badge: "/work-log/icon-192.png",
+        vibrate: [180, 90, 180]
+      });
+    } else {
+      new Notification(title, { body: body, icon: "/work-log/icon-192.png" });
+    }
+  } catch (e) {
+    try { new Notification(title, { body: body }); } catch {}
+  }
+}
+
+let timerInterval = null;
+function getTodaySession() {
+  const s = getActiveSession();
+  const today = getDateParts().dateISO;
+  if (s && s.date === today) return s;
+  return null;
+}
+function startSession(action) {
+  const now = new Date().toISOString();
+  const today = getDateParts().dateISO;
+  let s = getTodaySession();
+  if (!s) s = { date: today, login: null, lunch: null, back: null, logout: null, status: "idle" };
+  if (action === "login") { s.login = now; s.status = "working"; }
+  if (action === "lunch") { s.lunch = now; s.status = "lunch"; }
+  if (action === "back") { s.back = now; s.status = "working"; }
+  if (action === "logout") { s.logout = now; s.status = "loggedout"; }
+  setActiveSession(s);
+  if (action === "logout") archiveSession(s);
+  renderWork();
+}
+function archiveSession(s) {
+  const hist = getHistory();
+  const idx = hist.findIndex(h => h.date === s.date);
+  if (idx >= 0) hist[idx] = s; else hist.push(s);
+  setHistory(hist);
+}
+function calcWorkedMs(s) {
+  if (!s || !s.login) return 0;
+  const login = new Date(s.login).getTime();
+  const end = s.logout ? new Date(s.logout).getTime() : Date.now();
+  let worked = end - login;
+  if (s.lunch) {
+    const lunchStart = new Date(s.lunch).getTime();
+    const lunchEnd = s.back ? new Date(s.back).getTime() : end;
+    if (lunchEnd > lunchStart) worked -= (lunchEnd - lunchStart);
+  }
+  return Math.max(0, worked);
+}
+function renderWork() {
+  document.getElementById("workGreeting").textContent = "Hello, " + (getUser() || "there");
+  const s = getTodaySession();
+  const ws = getWorkSettings();
+  const targetMs = ((ws.workHours * 60) + ws.workMins) * 60000;
+  const timerValue = document.getElementById("timerValue");
+  const timerStatus = document.getElementById("timerStatus");
+  const timerPct = document.getElementById("timerPct");
+  const heroFill = document.getElementById("heroFill");
+  const statLogin = document.getElementById("statLogin");
+  const statLogout = document.getElementById("statLogout");
+  const statPending = document.getElementById("statPending");
+  const statusBadge = document.getElementById("todayStatus");
+  const timeline = document.getElementById("todayTimeline");
+  const RING_LEN = 251.33;
+  const p = getDateParts();
+  document.getElementById("heroDate").textContent = p.day + ", " + p.date;
+  ["btnLogin","btnLunch","btnBack","btnLogout"].forEach(id => document.getElementById(id).classList.remove("disabled"));
+  if (!s || !s.login) {
+    timerValue.textContent = "00:00:00";
+    timerStatus.textContent = "Not Started";
+    timerPct.textContent = "0% complete";
+    heroFill.style.strokeDashoffset = RING_LEN;
+    statLogin.textContent = "—";
+    statLogout.textContent = "—";
+    statPending.textContent = formatDurationHM(targetMs);
+    statusBadge.textContent = "Idle"; statusBadge.className = "badge";
+    timeline.innerHTML = '<div class="empty-state" style="padding:20px;"><div class="icon">📋</div>No activity yet today.</div>';
+    ["btnLunch","btnBack","btnLogout"].forEach(id => document.getElementById(id).classList.add("disabled"));
+    return;
+  }
+  const worked = calcWorkedMs(s);
+  const pct = Math.min(100, (worked / targetMs) * 100);
+  const pending = Math.max(0, targetMs - worked);
+  statLogin.textContent = formatTime(s.login);
+  statLogout.textContent = s.logout ? formatTime(s.logout) : "—";
+  statPending.textContent = s.logout ? "Done" : formatDurationHM(pending);
+  if (s.status === "working") {
+    timerStatus.textContent = "Working";
+    timerValue.textContent = formatDuration(worked);
+    timerPct.textContent = Math.floor(pct) + "% complete";
+    heroFill.style.strokeDashoffset = RING_LEN - (RING_LEN * pct / 100);
+    statusBadge.textContent = "Working"; statusBadge.className = "badge success";
+    document.getElementById("btnLogin").classList.add("disabled");
+    document.getElementById("btnBack").classList.add("disabled");
+  } else if (s.status === "lunch") {
+    const lunchMs = Date.now() - new Date(s.lunch).getTime();
+    timerStatus.textContent = "On Break";
+    timerValue.textContent = formatDuration(lunchMs);
+    timerPct.textContent = Math.floor(pct) + "% complete";
+    heroFill.style.strokeDashoffset = RING_LEN - (RING_LEN * pct / 100);
+    statusBadge.textContent = "Lunch"; statusBadge.className = "badge warning";
+    ["btnLogin","btnLunch","btnLogout"].forEach(id => document.getElementById(id).classList.add("disabled"));
+  } else if (s.status === "loggedout") {
+    timerStatus.textContent = "Logged Out";
+    timerValue.textContent = formatDuration(worked);
+    timerPct.textContent = Math.floor(pct) + "% complete";
+    heroFill.style.strokeDashoffset = RING_LEN - (RING_LEN * pct / 100);
+    statusBadge.textContent = "Done";
+    statusBadge.className = worked >= targetMs ? "badge success" : "badge warning";
+    ["btnLogin","btnLunch","btnBack","btnLogout"].forEach(id => document.getElementById(id).classList.add("disabled"));
+  }
+  const events = [];
+  if (s.login) events.push({ dot: "var(--primary)", label: "🟢 Login", time: formatTime(s.login) });
+  if (s.lunch) events.push({ dot: "var(--warning)", label: "🍽️ Lunch", time: formatTime(s.lunch) });
+  if (s.back) events.push({ dot: "var(--success)", label: "🔙 Back to work", time: formatTime(s.back) });
+  if (s.logout) events.push({ dot: "var(--danger)", label: "🔴 Logout", time: formatTime(s.logout) });
+  timeline.innerHTML = events.length ? events.map(e => '<div class="timeline-item"><div class="timeline-dot" style="background:'+e.dot+';"></div><div class="timeline-label">'+e.label+'</div><div class="timeline-time">'+e.time+'</div></div>').join("") : '<div class="empty-state" style="padding:20px;"><div class="icon">📋</div>No activity yet today.</div>';
+}
+function startTimer() {
+  if (timerInterval) clearInterval(timerInterval);
+  timerInterval = setInterval(() => {
+    const s = getTodaySession();
+    if (s && (s.status === "working" || s.status === "lunch")) renderWork();
+  }, 1000);
+}
+
+function openWhatsApp(message) { window.open("https://wa.me/?text=" + encodeURIComponent(message), "_blank"); }
+
+let pendingAction = null, pendingMsgChoice = "", verifyAction = null, verifyMessageText = "";
+
+function confirmAction(action) {
+  const msg = getMsgSettings();
+  const block = msg[action] || { options: [], default: "" };
+  const options = block.options && block.options.length ? block.options : ["—"];
+  let title = "", message = "";
+  if (action === "login") { title = "Start Working?"; message = "Pick the message to send to your WhatsApp group."; }
+  if (action === "lunch") { title = "Going for Lunch?"; message = "Pick the message to send to your WhatsApp group."; }
+  if (action === "back") { title = "Back to Work?"; message = "Pick the message to send to your WhatsApp group."; }
+  if (action === "logout") { title = "Log Out?"; message = "Pick the message to send to your WhatsApp group."; }
+  document.getElementById("confirmTitle").textContent = title;
+  document.getElementById("confirmMessage").textContent = message;
+  const list = document.getElementById("confirmMsgList");
+  list.innerHTML = "";
+  const defaultChoice = block.default && options.includes(block.default) ? block.default : options[0];
+  pendingMsgChoice = defaultChoice;
+  options.forEach(opt => {
+    const item = document.createElement("label");
+    item.className = "radio-item" + (opt === defaultChoice ? " selected" : "");
+    item.innerHTML = '<input type="radio" name="msgChoice" value="'+opt.replace(/"/g,'&quot;')+'" '+(opt === defaultChoice ? "checked" : "")+'><span class="txt">'+opt+'</span>';
+    item.querySelector("input").addEventListener("change", () => {
+      pendingMsgChoice = opt;
+      list.querySelectorAll(".radio-item").forEach(el => el.classList.remove("selected"));
+      item.classList.add("selected");
+      document.getElementById("confirmPreview").textContent = opt;
+    });
+    list.appendChild(item);
+  });
+  document.getElementById("confirmPreview").textContent = defaultChoice;
+  pendingAction = action;
+  document.getElementById("confirmOverlay").classList.add("active");
+}
+
+function executeConfirmedAction() {
+  if (!pendingAction) return;
+  verifyAction = pendingAction;
+  verifyMessageText = pendingMsgChoice;
+  document.getElementById("verifyPreview").textContent = verifyMessageText;
+  document.getElementById("confirmOverlay").classList.remove("active");
+  openWhatsApp(pendingMsgChoice);
+  setTimeout(() => document.getElementById("verifyOverlay").classList.add("active"), 800);
+  pendingAction = null;
+}
+
+const ACTION_LABELS = {
+  login:  { emoji: "🟢", verb: "Login recorded",   msg: "Your work day has started. Timer is running." },
+  lunch:  { emoji: "🍽️", verb: "Lunch break started", msg: "Enjoy your break. The timer will pause when you come back." },
+  back:   { emoji: "🔙", verb: "Back to work",     msg: "Welcome back. Timer has resumed." },
+  logout: { emoji: "🔴", verb: "Day complete",     msg: "Great work today. Your hours have been saved." }
+};
+
+function confirmVerification() {
+  if (!verifyAction) return;
+  startSession(verifyAction);
+  document.getElementById("verifyOverlay").classList.remove("active");
+  const info = ACTION_LABELS[verifyAction] || { emoji: "✅", verb: "Confirmed", msg: "Your action has been recorded." };
+  showToast(info.emoji + " " + info.verb);
+  sendNativeNotification(info.emoji + " " + info.verb, info.msg, "wm-action-" + verifyAction);
+  verifyAction = null; verifyMessageText = "";
+  scheduleNotifications();
+}
+function retryVerification() {
+  const action = verifyAction, msg = verifyMessageText;
+  document.getElementById("verifyOverlay").classList.remove("active");
+  verifyAction = null; verifyMessageText = "";
+  setTimeout(() => {
+    pendingAction = action; pendingMsgChoice = msg;
+    document.getElementById("confirmPreview").textContent = msg;
+    const list = document.getElementById("confirmMsgList");
+    list.querySelectorAll(".radio-item").forEach(el => {
+      const input = el.querySelector("input");
+      if (input && input.value === msg) { input.checked = true; el.classList.add("selected"); }
+      else el.classList.remove("selected");
+    });
+    document.getElementById("confirmOverlay").classList.add("active");
+  }, 200);
+}
+
+let notifTimers = [];
+function scheduleNotifications() {
+  notifTimers.forEach(t => clearTimeout(t)); notifTimers = [];
+  const s = getTodaySession();
+  if (!s || !s.login || s.status === "loggedout") return;
+  const ws = getWorkSettings();
+  const loginTime = new Date(s.login).getTime();
+  const now = new Date();
+  const lunchTarget = new Date(); lunchTarget.setHours(13,0,0,0);
+  const lunchNotifTime = lunchTarget.getTime() - 10 * 60000;
+  if (lunchNotifTime > now.getTime()) notifTimers.push(setTimeout(() => sendNativeNotification("🍽️ Lunch in 10 min", "Time to take your lunch break soon.", "wm-lunch"), lunchNotifTime - now.getTime()));
+  if (s.lunch && !s.back) {
+    const lunchStart = new Date(s.lunch).getTime();
+    const breakMs = ((ws.breakHours * 60) + ws.breakMins) * 60000;
+    const backNotif = lunchStart + breakMs - 10 * 60000;
+    if (backNotif > now.getTime()) notifTimers.push(setTimeout(() => sendNativeNotification("🔙 Back to work in 10 min", "Your break ends in 10 minutes.", "wm-back"), backNotif - now.getTime()));
+  }
+  const targetMs = ((ws.workHours * 60) + ws.workMins) * 60000;
+  const logoutTarget = loginTime + targetMs;
+  const logoutNotif = logoutTarget - 10 * 60000;
+  if (logoutNotif > now.getTime()) notifTimers.push(setTimeout(() => sendNativeNotification("🔴 Logout in 10 min", "Your shift ends in 10 minutes.", "wm-logout"), logoutNotif - now.getTime()));
+  if (logoutTarget > now.getTime()) notifTimers.push(setTimeout(() => {
+    const sess = getTodaySession();
+    if (sess && sess.status !== "loggedout") sendNativeNotification("⏰ Working hours complete", "Don't forget to log out for the day.", "wm-overwork");
+  }, logoutTarget - now.getTime()));
+}
+
+const ACTION_META = {
+  login: { label: "🟢 Login / Started Working", placeholder: "e.g. Started Working" },
+  lunch: { label: "🍽️ Lunch Break", placeholder: "e.g. Going for Lunch Break" },
+  back: { label: "🔙 Back to Work", placeholder: "e.g. Back to Work" },
+  logout: { label: "🔴 Logout", placeholder: "e.g. Logged Out for the day" }
+};
+function renderMsgSections() {
+  const wrap = document.getElementById("msgSections");
+  const ms = getMsgSettings();
+  wrap.innerHTML = "";
+  Object.keys(ACTION_META).forEach(action => {
+    const meta = ACTION_META[action];
+    const block = ms[action] || { options: [], default: "" };
+    const sec = document.createElement("div");
+    sec.style.marginBottom = "18px";
+    sec.innerHTML = '<div class="section-title">'+meta.label+'</div><div class="msg-chip-group" data-chips="'+action+'" style="display:flex; flex-wrap:wrap; gap:6px; margin-bottom:10px;"></div><div class="add-msg-row" style="display:flex; gap:8px; margin-bottom:14px;"><input type="text" data-input="'+action+'" placeholder="'+meta.placeholder+'" style="margin-bottom:0;"><button class="btn small" data-add="'+action+'">Add</button></div><div class="radio-list" data-defaults="'+action+'"></div>';
+    wrap.appendChild(sec);
+    const chipsEl = sec.querySelector('[data-chips="'+action+'"]');
+    const defaultsEl = sec.querySelector('[data-defaults="'+action+'"]');
+    function renderChips() {
+      chipsEl.innerHTML = "";
+      if (!block.options.length) { chipsEl.innerHTML = '<span style="font-size:0.78rem;color:var(--text-3);">No options yet. Add one below.</span>'; return; }
+      block.options.forEach(opt => {
+        const chip = document.createElement("span");
+        chip.style.cssText = "display:inline-flex; align-items:center; gap:6px; padding:7px 11px; border-radius:10px; background:var(--primary-soft); color:var(--primary); font-size:0.78rem; font-weight:700;";
+        chip.innerHTML = '<span>'+opt+'</span><button style="background:none;border:none;cursor:pointer;color:var(--primary);font-weight:800;font-size:0.95rem;padding:0 2px;">×</button>';
+        chip.querySelector("button").addEventListener("click", () => {
+          block.options = block.options.filter(o => o !== opt);
+          if (block.default === opt) block.default = block.options[0] || "";
+          persistMsg(); renderChips(); renderDefaults();
+        });
+        chipsEl.appendChild(chip);
+      });
+    }
+    function renderDefaults() {
+      defaultsEl.innerHTML = "";
+      if (!block.options.length) return;
+      block.options.forEach(opt => {
+        const item = document.createElement("label");
+        item.className = "radio-item" + (opt === block.default ? " selected" : "");
+        item.innerHTML = '<input type="radio" name="default-'+action+'" value="'+opt.replace(/"/g,'&quot;')+'" '+(opt === block.default ? "checked" : "")+'><span class="txt">'+opt+'</span>'+(opt === block.default ? '<span class="badge">Default</span>' : '');
+        item.querySelector("input").addEventListener("change", () => { block.default = opt; persistMsg(); renderDefaults(); });
+        defaultsEl.appendChild(item);
+      });
+    }
+    function persistMsg() { const all = getMsgSettings(); all[action] = block; set(KEYS.MSG_SETTINGS, all); }
+    sec.querySelector('[data-add="'+action+'"]').addEventListener("click", () => {
+      const input = sec.querySelector('[data-input="'+action+'"]');
+      const val = input.value.trim();
+      if (!val) return;
+      if (!block.options.includes(val)) block.options.push(val);
+      if (!block.default) block.default = val;
+      input.value = "";
+      persistMsg(); renderChips(); renderDefaults();
+    });
+    sec.querySelector('[data-input="'+action+'"]').addEventListener("keydown", (e) => {
+      if (e.key === "Enter") { e.preventDefault(); sec.querySelector('[data-add="'+action+'"]').click(); }
+    });
+    renderChips(); renderDefaults();
+  });
+  document.getElementById("waGroupLink").value = ms.groupLink || "";
+}
+
+function getFilteredHistory() {
+  const hist = getHistory().slice().sort((a,b) => b.date.localeCompare(a.date));
+  const fm = document.getElementById("filterMonth").value;
+  const fy = document.getElementById("filterYear").value;
+  return hist.filter(h => {
+    if (fm && h.date.slice(5,7) !== fm) return false;
+    if (fy && h.date.slice(0,4) !== fy) return false;
+    return true;
+  });
+}
+
+function downloadXlsx() {
+  const hist = getFilteredHistory();
+  if (!hist.length) { showToast("No data to export"); return; }
+  const ws = getWorkSettings();
+  const targetMs = ((ws.workHours * 60) + ws.workMins) * 60000;
+  const rows = hist.slice().sort((a,b) => a.date.localeCompare(b.date)).map(h => {
+    const worked = calcWorkedMs(h);
+    const status = worked >= targetMs ? "Completed" : (h.logout ? "Incomplete" : "Active");
+    return {
+      Date: h.date,
+      Day: new Date(h.date).toLocaleDateString("en-US", { weekday: "long" }),
+      Login: h.login ? formatTime(h.login) : "",
+      "Lunch Start": h.lunch ? formatTime(h.lunch) : "",
+      "Lunch End": h.back ? formatTime(h.back) : "",
+      Logout: h.logout ? formatTime(h.logout) : "",
+      "Worked (HH:MM)": formatDurationHM(worked),
+      "Worked (Seconds)": Math.floor(worked / 1000),
+      "Target (HH:MM)": ws.workHours + "h " + ws.workMins + "m",
+      Status: status,
+      Difference: worked >= targetMs ? "+" + formatDurationHM(worked - targetMs) : "-" + formatDurationHM(targetMs - worked)
+    };
+  });
+  const totalWorked = hist.reduce((a, h) => a + calcWorkedMs(h), 0);
+  const avgWorked = totalWorked / hist.length;
+  const completed = hist.filter(h => calcWorkedMs(h) >= targetMs).length;
+  const incomplete = hist.length - completed;
+  const summary = [
+    { Metric: "Total days tracked", Value: hist.length },
+    { Metric: "Completed days", Value: completed },
+    { Metric: "Incomplete days", Value: incomplete },
+    { Metric: "Success rate", Value: Math.round((completed / hist.length) * 100) + "%" },
+    { Metric: "Total hours worked", Value: formatDurationHM(totalWorked) },
+    { Metric: "Average per day", Value: formatDurationHM(avgWorked) },
+    { Metric: "Target per day", Value: ws.workHours + "h " + ws.workMins + "m" },
+    { Metric: "Generated on", Value: new Date().toLocaleString() }
+  ];
+  const wb = XLSX.utils.book_new();
+  const ws1 = XLSX.utils.json_to_sheet(rows);
+  const ws2 = XLSX.utils.json_to_sheet(summary);
+  ws1["!cols"] = [{wch:12},{wch:10},{wch:10},{wch:12},{wch:12},{wch:10},{wch:14},{wch:16},{wch:14},{wch:12},{wch:18}];
+  ws2["!cols"] = [{wch:24},{wch:20}];
+  XLSX.utils.book_append_sheet(wb, ws2, "Summary");
+  XLSX.utils.book_append_sheet(wb, ws1, "Daily Records");
+  const fm = document.getElementById("filterMonth").value;
+  const fy = document.getElementById("filterYear").value;
+  const fname = "WorkTimesheet_" + (fy || "all") + (fm ? "-" + fm : "") + ".xlsx";
+  XLSX.writeFile(wb, fname);
+  showToast("Downloaded " + fname);
+}
+
+function renderHistory() {
+  const hist = getHistory().slice().sort((a,b) => b.date.localeCompare(a.date));
+  const monthSel = document.getElementById("filterMonth");
+  const yearSel = document.getElementById("filterYear");
+  if (!monthSel.options.length) {
+    const months = ["All Months","Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
+    months.forEach((m,i) => {
+      const o = document.createElement("option");
+      o.value = i === 0 ? "" : String(i).padStart(2,"0");
+      o.textContent = m;
+      monthSel.appendChild(o);
+    });
+  }
+  if (!yearSel.options.length) {
+    const years = new Set(hist.map(h => h.date.slice(0,4)));
+    years.add(String(new Date().getFullYear()));
+    [...years].sort().reverse().forEach(y => {
+      const o = document.createElement("option");
+      o.value = y; o.textContent = y;
+      yearSel.appendChild(o);
+    });
+  }
+  const fm = monthSel.value, fy = yearSel.value;
+  const filtered = hist.filter(h => {
+    if (fm && h.date.slice(5,7) !== fm) return false;
+    if (fy && h.date.slice(0,4) !== fy) return false;
+    return true;
+  });
+  const ws = getWorkSettings();
+  const targetMs = ((ws.workHours * 60) + ws.workMins) * 60000;
+  let totalMs = 0, maxMs = 0, minMs = Infinity, overCount = 0, incompleteCount = 0, completeCount = 0;
+  let maxDate = "—", minDate = "—";
+  filtered.forEach(h => {
+    const worked = calcWorkedMs(h);
+    totalMs += worked;
+    if (worked > maxMs) { maxMs = worked; maxDate = h.date; }
+    if (worked > 0 && worked < minMs) { minMs = worked; minDate = h.date; }
+    if (worked > targetMs) { overCount++; completeCount++; }
+    else if (!h.logout || worked < targetMs) incompleteCount++;
+    else completeCount++;
+  });
+  const avgMs = filtered.length ? totalMs / filtered.length : 0;
+  document.getElementById("statComplete").textContent = completeCount;
+  document.getElementById("statCompleteSub").textContent = filtered.length ? Math.round((completeCount/filtered.length)*100) + "% of days" : "days met target";
+  document.getElementById("statIncomplete").textContent = incompleteCount;
+  document.getElementById("statIncompleteSub").textContent = filtered.length ? Math.round((incompleteCount/filtered.length)*100) + "% of days" : "days short";
+  document.getElementById("statOver").textContent = overCount;
+  document.getElementById("statOverSub").textContent = filtered.length ? Math.round((overCount/filtered.length)*100) + "% of days" : "days above target";
+  document.getElementById("statWorked").textContent = filtered.length;
+  document.getElementById("statWorkedSub").textContent = "days tracked";
+  document.getElementById("statTotal").textContent = formatDurationHM(totalMs);
+  document.getElementById("statAvg").textContent = formatDurationHM(avgMs);
+  document.getElementById("statMax").textContent = maxMs ? formatDurationHM(maxMs) : "0h 0m";
+  document.getElementById("statMaxDate").textContent = maxDate;
+  document.getElementById("statMin").textContent = minMs === Infinity ? "—" : formatDurationHM(minMs);
+  document.getElementById("statMinDate").textContent = minDate;
+  const successPct = filtered.length ? Math.round((completeCount / filtered.length) * 100) : 0;
+  let insightIcon = "💡", insightTitle = "Insight", insightValue = "—", insightSub = "—";
+  if (!filtered.length) { insightTitle = "No data yet"; insightValue = "Start tracking"; insightSub = "Log your first day to see insights"; }
+  else if (successPct >= 80) { insightIcon = "🏆"; insightTitle = "Outstanding consistency"; insightValue = successPct + "% days on target"; insightSub = completeCount + " of " + filtered.length + " days completed"; }
+  else if (successPct >= 50) { insightIcon = "📈"; insightTitle = "On a good track"; insightValue = successPct + "% days on target"; insightSub = incompleteCount + " days need attention"; }
+  else { insightIcon = "⚠️"; insightTitle = "Below target"; insightValue = successPct + "% days on target"; insightSub = incompleteCount + " of " + filtered.length + " days incomplete"; }
+  document.getElementById("insightIcon").textContent = insightIcon;
+  document.getElementById("insightTitle").textContent = insightTitle;
+  document.getElementById("insightValue").textContent = insightValue;
+  document.getElementById("insightSub").textContent = insightSub;
+  const total = Math.max(1, filtered.length);
+  document.getElementById("donutPct").textContent = successPct + "%";
+  document.getElementById("legendComplete").textContent = completeCount;
+  document.getElementById("legendIncomplete").textContent = incompleteCount;
+  document.getElementById("legendOver").textContent = overCount;
+  const DASH = 263.89;
+  const completeLen = (completeCount / total) * DASH;
+  const incompleteLen = (incompleteCount / total) * DASH;
+  const overLen = (overCount / total) * DASH;
+  document.getElementById("donutComplete").setAttribute("stroke-dasharray", completeLen + " " + DASH);
+  document.getElementById("donutComplete").setAttribute("stroke-dashoffset", "0");
+  document.getElementById("donutIncomplete").setAttribute("stroke-dasharray", incompleteLen + " " + DASH);
+  document.getElementById("donutIncomplete").setAttribute("stroke-dashoffset", "-" + completeLen);
+  document.getElementById("donutOver").setAttribute("stroke-dasharray", overLen + " " + DASH);
+  document.getElementById("donutOver").setAttribute("stroke-dashoffset", "-" + (completeLen + incompleteLen));
+
+  const chart = document.getElementById("chartBar");
+  chart.innerHTML = "";
+  const days = ["Sun","Mon","Tue","Wed","Thu","Fri","Sat"];
+  const today = new Date();
+  const last14 = [];
+  for (let i = 13; i >= 0; i--) {
+    const d = new Date(today);
+    d.setDate(today.getDate() - i);
+    const iso = d.getFullYear() + "-" + String(d.getMonth()+1).padStart(2,"0") + "-" + String(d.getDate()).padStart(2,"0");
+    const rec = filtered.find(h => h.date === iso);
+    const worked = rec ? calcWorkedMs(rec) : 0;
+    last14.push({ label: days[d.getDay()].slice(0,1), worked: worked, met: worked >= targetMs });
+  }
+  const maxChart = Math.max(targetMs, ...last14.map(d => d.worked), 1);
+  last14.forEach(d => {
+    const pct = Math.min(100, (d.worked / maxChart) * 100);
+    const col = document.createElement("div");
+    col.className = "bar-col";
+    col.innerHTML = '<div class="bar-fill-wrap"><div class="bar-fill ' + (d.met ? "" : "partial") + '" style="height:' + Math.max(pct, 3) + '%"></div></div><div class="bar-label">' + d.label + '</div>';
+    chart.appendChild(col);
+  });
+
+  const lineSvg = document.getElementById("lineChart");
+  const lineData = filtered.slice(0, 20).reverse();
+  const W = 320, H = 180, PAD = 20;
+  if (lineData.length >= 2) {
+    const values = lineData.map(h => calcWorkedMs(h));
+    const maxV = Math.max(targetMs, ...values, 1);
+    const stepX = (W - PAD * 2) / (lineData.length - 1);
+    const points = values.map((v, i) => ({ x: PAD + i * stepX, y: H - PAD - (v / maxV) * (H - PAD * 2), v: v }));
+    const linePath = points.map((p, i) => (i === 0 ? "M" : "L") + p.x + " " + p.y).join(" ");
+    const areaPath = linePath + " L" + points[points.length-1].x + " " + (H-PAD) + " L" + points[0].x + " " + (H-PAD) + " Z";
+    let gridLines = "";
+    for (let i = 0; i <= 4; i++) {
+      const y = PAD + (i / 4) * (H - PAD * 2);
+      gridLines += '<line class="line-chart-grid" x1="' + PAD + '" y1="' + y + '" x2="' + (W-PAD) + '" y2="' + y + '"/>';
+    }
+    const dots = points.map((p, i) => {
+      const isLast = i === points.length - 1;
+      return '<circle class="' + (isLast ? "line-chart-point" : "line-chart-point hollow") + '" cx="' + p.x + '" cy="' + p.y + '" r="' + (isLast ? 5 : 3.5) + '"/>';
+    }).join("");
+    const labels = lineData.map((h, i) => {
+      const x = PAD + i * stepX;
+      return '<text class="line-chart-label" x="' + x + '" y="' + (H-4) + '">' + h.date.slice(8,10) + '</text>';
+    }).join("");
+    lineSvg.innerHTML = '<defs><linearGradient id="lineGrad" x1="0%" y1="0%" x2="0%" y2="100%"><stop offset="0%" stop-color="hsl(var(--accent-h), var(--accent-s), var(--accent-l))" stop-opacity="0.5"/><stop offset="100%" stop-color="hsl(var(--accent-h), var(--accent-s), var(--accent-l))" stop-opacity="0"/></linearGradient></defs>' + gridLines + '<path class="line-chart-area" d="' + areaPath + '"/><path class="line-chart-line" d="' + linePath + '"/>' + dots + labels;
+  } else {
+    lineSvg.innerHTML = '<text x="160" y="90" text-anchor="middle" fill="var(--text-3)" font-size="12" font-weight="600">Need at least 2 days of data</text>';
+  }
+
+  const weekdayChart = document.getElementById("weekdayChart");
+  const weekdayTotals = [0,0,0,0,0,0,0];
+  const weekdayCounts = [0,0,0,0,0,0,0];
+  filtered.forEach(h => {
+    const d = new Date(h.date);
+    const day = d.getDay();
+    weekdayTotals[day] += calcWorkedMs(h);
+    weekdayCounts[day]++;
+  });
+  const weekdayNames = ["Sunday","Monday","Tuesday","Wednesday","Thursday","Friday","Saturday"];
+  const maxWeekday = Math.max(...weekdayTotals.map((t, i) => weekdayCounts[i] ? t / weekdayCounts[i] : 0), 1);
+  weekdayChart.innerHTML = "";
+  [1,2,3,4,5,6,0].forEach(i => {
+    const avg = weekdayCounts[i] ? weekdayTotals[i] / weekdayCounts[i] : 0;
+    const pct = (avg / maxWeekday) * 100;
+    const row = document.createElement("div");
+    row.className = "hbar-row";
+    row.innerHTML = '<div class="hbar-top"><span class="hbar-label">' + weekdayNames[i] + '</span><span class="hbar-value">' + (avg ? formatDurationHM(avg) : "—") + '</span></div><div class="hbar-track"><div class="hbar-fill ' + (i === 0 || i === 6 ? "info" : "primary") + '" style="width:' + pct + '%"></div></div>';
+    weekdayChart.appendChild(row);
+  });
+
+  const heatmap = document.getElementById("heatmap");
+  heatmap.innerHTML = "";
+  const heatData = {};
+  hist.forEach(h => { heatData[h.date] = calcWorkedMs(h); });
+  const todayHeat = new Date();
+  const start = new Date(todayHeat);
+  start.setDate(todayHeat.getDate() - 83);
+  start.setDate(start.getDate() - start.getDay());
+  for (let i = 0; i < 84; i++) {
+    const d = new Date(start);
+    d.setDate(start.getDate() + i);
+    const iso = d.getFullYear() + "-" + String(d.getMonth()+1).padStart(2,"0") + "-" + String(d.getDate()).padStart(2,"0");
+    const cell = document.createElement("div");
+    cell.className = "heat-cell";
+    const worked = heatData[iso] || 0;
+    if (worked > 0) {
+      const pct = worked / targetMs;
+      if (pct < 0.25) cell.classList.add("l1");
+      else if (pct < 0.5) cell.classList.add("l2");
+      else if (pct < 0.75) cell.classList.add("l3");
+      else if (pct < 1) cell.classList.add("l4");
+      else cell.classList.add("l5");
+    }
+    cell.title = iso + ": " + (worked ? formatDurationHM(worked) : "No data");
+    heatmap.appendChild(cell);
+  }
+
+  const list = document.getElementById("historyList");
+  list.innerHTML = "";
+  document.getElementById("historyCount").textContent = filtered.length + " days";
+  if (!filtered.length) { list.innerHTML = '<div class="empty-state"><div class="icon">📊</div>No records for this period.</div>'; return; }
+  filtered.forEach(h => {
+    const worked = calcWorkedMs(h);
+    const isIncomplete = !h.logout || worked < targetMs;
+    const row = document.createElement("div");
+    row.className = "history-item";
+    row.innerHTML = '<div><div class="date">' + h.date + '</div><div class="time">' + (h.login ? formatTime(h.login) : "—") + ' → ' + (h.logout ? formatTime(h.logout) : "active") + '</div></div><div style="text-align:right;"><div class="duration ' + (isIncomplete ? "incomplete" : "") + '">' + formatDurationHM(worked) + '</div>' + (isIncomplete ? '<span class="badge muted">Partial</span>' : '<span class="badge success">✓</span>') + '</div>';
+    list.appendChild(row);
+  });
+}
+
+function showView(name) {
+  document.querySelectorAll(".view").forEach(v => v.classList.remove("active"));
+  document.getElementById("view-" + name).classList.add("active");
+  document.getElementById("bottomNav").style.display = name === "login" ? "none" : "flex";
+  document.querySelectorAll(".bottom-nav button").forEach(b => b.classList.toggle("active", b.dataset.nav === name));
+  window.scrollTo(0, 0);
+  if (name === "work") renderWork();
+  if (name === "history") renderHistory();
+  if (name === "settings") {
+    renderColorGrid();
+    renderFontSelect();
+    renderMsgSections();
+    const ws = getWorkSettings();
+    document.getElementById("whHours").value = ws.workHours;
+    document.getElementById("whMins").value = ws.workMins;
+    document.getElementById("breakHours").value = ws.breakHours;
+    document.getElementById("breakMins").value = ws.breakMins;
+    document.getElementById("timeFormat").value = ws.timeFormat || "12";
+  }
+}
+
+document.addEventListener("DOMContentLoaded", () => {
+  initAppearance();
+  requestNotificationPermission();
+
+  const un = document.getElementById("username");
+  const lb = document.getElementById("loginBtn");
+  function doLogin() {
+    const name = un.value.trim();
+    if (!name) { un.focus(); un.style.borderColor = "var(--danger)"; return; }
+    setUser(name);
+    showView("work");
+    startTimer();
+  }
+  lb.addEventListener("click", doLogin);
+  un.addEventListener("keydown", e => { if (e.key === "Enter") doLogin(); });
+
+  document.querySelectorAll("[data-theme-toggle]").forEach(el => el.addEventListener("click", toggleTheme));
+  document.querySelectorAll(".bottom-nav button").forEach(b => b.addEventListener("click", () => showView(b.dataset.nav)));
+
+  ["btnLogin","btnLunch","btnBack","btnLogout"].forEach(id => {
+    document.getElementById(id).addEventListener("click", () => confirmAction(document.getElementById(id).dataset.action));
+  });
+
+  document.getElementById("confirmCancel").addEventListener("click", () => {
+    document.getElementById("confirmOverlay").classList.remove("active");
+    pendingAction = null;
+  });
+  document.getElementById("confirmOk").addEventListener("click", executeConfirmedAction);
+  document.getElementById("confirmOverlay").addEventListener("click", e => {
+    if (e.target.id === "confirmOverlay") { document.getElementById("confirmOverlay").classList.remove("active"); pendingAction = null; }
+  });
+  document.getElementById("verifyYes").addEventListener("click", confirmVerification);
+  document.getElementById("verifyNo").addEventListener("click", retryVerification);
+
+  document.getElementById("saveWorkSettings").addEventListener("click", () => {
+    set(KEYS.WORK_SETTINGS, {
+      workHours: parseInt(document.getElementById("whHours").value) || 0,
+      workMins: parseInt(document.getElementById("whMins").value) || 0,
+      breakHours: parseInt(document.getElementById("breakHours").value) || 0,
+      breakMins: parseInt(document.getElementById("breakMins").value) || 0,
+      timeFormat: document.getElementById("timeFormat").value
+    });
+    renderWork();
+    scheduleNotifications();
+    showToast("Work settings saved");
+  });
+  document.getElementById("saveMsgSettings").addEventListener("click", () => {
+    const all = getMsgSettings();
+    all.groupLink = document.getElementById("waGroupLink").value.trim();
+    set(KEYS.MSG_SETTINGS, all);
+    showToast("Messages saved");
+  });
+  document.getElementById("clearHistoryBtn").addEventListener("click", () => {
+    if (confirm("Clear all work history? This cannot be undone.")) {
+      setHistory([]); renderHistory(); showToast("History cleared");
+    }
+  });
+  document.getElementById("resetAllBtn").addEventListener("click", () => {
+    if (confirm("Reset everything? This will delete all data including history.")) {
+      Object.values(KEYS).forEach(k => localStorage.removeItem(k));
+      location.reload();
+    }
+  });
+  document.getElementById("logoutBtn").addEventListener("click", () => {
+    if (confirm("Log out of the app?")) { localStorage.removeItem(KEYS.USER); showView("login"); }
+  });
+  document.getElementById("filterMonth").addEventListener("change", renderHistory);
+  document.getElementById("filterYear").addEventListener("change", renderHistory);
+  document.getElementById("downloadXlsxBtn").addEventListener("click", downloadXlsx);
+  document.getElementById("testNotifBtn").addEventListener("click", async () => {
+    await requestNotificationPermission();
+    sendNativeNotification("🔔 Test notification", "If you see this as a system notification, everything is working!", "wm-test");
+  });
+
+  if (getUser()) { showView("work"); startTimer(); scheduleNotifications(); }
+  else showView("login");
+
+  if ("serviceWorker" in navigator) {
+    navigator.serviceWorker.register("/work-log/sw.js")
+      .then(() => console.log("SW registered"))
+      .catch(err => console.error("SW failed:", err));
+  }
+});
+</script>
+
+</body>
+</html>
