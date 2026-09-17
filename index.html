@@ -341,7 +341,7 @@ label { font-size: 0.72rem; font-weight: 700; color: var(--text-2); display: blo
     <div class="login-footer">
       <div class="designer-line">Designed &amp; Developed by</div>
       <div class="designer-name">Pruthvi raj</div>
-      <div class="designer-meta">v13.1 · Made with ⚡ in India</div>
+      <div class="designer-meta" id="loginVersion">v14.0 · Made with ⚡ in India</div>
     </div>
   </div>
 </div>
@@ -675,7 +675,7 @@ label { font-size: 0.72rem; font-weight: 700; color: var(--text-2); display: blo
 <div class="toast" id="toast"></div>
 
 <script>
-const APP_VERSION = "13.1";
+const APP_VERSION = "14.0";
 const KEYS = {
   USER: "wl_user", THEME: "wl_theme", ACCENT: "wl_accent", FONT: "wl_font",
   WORK_SETTINGS: "wl_work_settings", MSG_SETTINGS: "wl_msg_settings",
@@ -1514,6 +1514,14 @@ function renderNotifToggle() {
 }
 function openHelp() { document.getElementById("helpOverlay").classList.add("active"); }
 function closeHelp() { document.getElementById("helpOverlay").classList.remove("active"); }
+async function fetchLatestVersion() {
+  try {
+    const res = await fetch("/work-log/version.json?t=" + Date.now(), { cache: "no-store" });
+    if (!res.ok) return null;
+    const data = await res.json();
+    return data.version || null;
+  } catch { return null; }
+}
 async function checkForUpdates(silent) {
   const status = document.getElementById("updateStatus");
   const text = document.getElementById("updateText");
@@ -1521,22 +1529,19 @@ async function checkForUpdates(silent) {
   if (!status) return;
   if (!silent) status.textContent = "Checking…";
   try {
-    const res = await fetch("https://api.github.com/repos/ram-clef/work-log/commits?per_page=1", { cache: "no-store" });
+    const res = await fetch("/work-log/version.json?t=" + Date.now(), { cache: "no-store" });
     if (!res.ok) throw new Error("fetch failed");
     const data = await res.json();
-    if (!data || !data[0]) throw new Error("no data");
-    const latestSha = data[0].sha;
-    const lastSeen = localStorage.getItem(KEYS.LAST_CHECK) || "";
-    const msg = data[0].commit.message.split("\n")[0];
-    const msgShort = msg.length > 60 ? msg.slice(0, 60) + "…" : msg;
-    if (lastSeen && lastSeen !== latestSha) {
-      if (text) text.textContent = "A new version of Work Log is ready.";
+    const latestVersion = data.version || null;
+    if (!latestVersion) throw new Error("no version");
+    if (latestVersion !== APP_VERSION) {
+      if (text) text.textContent = "A new version of Work Log is ready (v" + latestVersion + ").";
       nowBtn.style.display = "block";
-      status.textContent = "Latest: " + msgShort;
+      status.textContent = "Installed: v" + APP_VERSION + " · Available: v" + latestVersion;
     } else {
       if (text) text.textContent = "You're on the latest version.";
       nowBtn.style.display = "none";
-      status.textContent = lastSeen ? "✓ Up to date" : "Click to check for the first time";
+      status.textContent = "✓ v" + APP_VERSION + " is up to date";
     }
   } catch (e) {
     if (text) text.textContent = "Couldn't reach the update server.";
@@ -1556,13 +1561,10 @@ async function performUpdate() {
       const regs = await navigator.serviceWorker.getRegistrations();
       await Promise.all(regs.map(r => r.unregister()));
     }
-    try {
-      const res = await fetch("https://api.github.com/repos/ram-clef/work-log/commits?per_page=1", { cache: "no-store" });
-      const data = await res.json();
-      if (data && data[0]) localStorage.setItem(KEYS.LAST_CHECK, data[0].sha);
-    } catch {}
     status.textContent = "Update complete. Reloading…";
-    setTimeout(() => location.reload(true), 800);
+    const url = new URL(location.href);
+    url.searchParams.set("v", Date.now());
+    setTimeout(() => location.replace(url.toString()), 800);
   } catch (e) {
     status.textContent = "Update failed. Please refresh manually.";
   }
@@ -1617,6 +1619,42 @@ function restoreJson(file) {
   reader.readAsText(file);
 }
 document.addEventListener("DOMContentLoaded", async () => {
+  const versionEl = document.getElementById("loginVersion");
+  if (versionEl) versionEl.textContent = "v" + APP_VERSION + " · Made with ⚡ in India";
+
+  const installedVersion = localStorage.getItem("wl_app_version");
+  if (installedVersion && installedVersion !== APP_VERSION) {
+    if ("caches" in window) {
+      try {
+        const keys = await caches.keys();
+        await Promise.all(keys.map(k => caches.delete(k)));
+      } catch {}
+    }
+  }
+  localStorage.setItem("wl_app_version", APP_VERSION);
+
+  const latestVersion = await fetchLatestVersion();
+  if (latestVersion && latestVersion !== APP_VERSION) {
+    const url = new URL(location.href);
+    if (url.searchParams.get("v") !== latestVersion) {
+      if ("caches" in window) {
+        try {
+          const keys = await caches.keys();
+          await Promise.all(keys.map(k => caches.delete(k)));
+        } catch {}
+      }
+      if ("serviceWorker" in navigator) {
+        try {
+          const regs = await navigator.serviceWorker.getRegistrations();
+          await Promise.all(regs.map(r => r.unregister()));
+        } catch {}
+      }
+      url.searchParams.set("v", latestVersion);
+      location.replace(url.toString());
+      return;
+    }
+  }
+
   initAppearance();
   requestNotificationPermission();
   const un = document.getElementById("username");
@@ -1671,6 +1709,7 @@ document.addEventListener("DOMContentLoaded", async () => {
   document.getElementById("resetAllBtn").addEventListener("click", () => {
     if (confirm("Reset everything? This will delete all data including history.")) {
       Object.values(KEYS).forEach(k => localStorage.removeItem(k));
+      localStorage.removeItem("wl_app_version");
       location.reload();
     }
   });
@@ -1723,17 +1762,12 @@ document.addEventListener("DOMContentLoaded", async () => {
     const f = e.target.files && e.target.files[0];
     if (f) restoreJson(f);
   });
-  if (!localStorage.getItem(KEYS.LAST_CHECK)) {
-    try {
-      const res = await fetch("https://api.github.com/repos/ram-clef/work-log/commits?per_page=1", { cache: "no-store" });
-      const data = await res.json();
-      if (data && data[0]) localStorage.setItem(KEYS.LAST_CHECK, data[0].sha);
-    } catch {}
-  }
+
   if (getUser()) { showView("work"); startTimer(); scheduleNotifications(); }
   else showView("login");
+
   if ("serviceWorker" in navigator) {
-    navigator.serviceWorker.register("/work-log/sw.js")
+    navigator.serviceWorker.register("/work-log/sw.js?v=" + APP_VERSION, { updateViaCache: "none" })
       .then(reg => {
         reg.addEventListener("updatefound", () => {
           const sw = reg.installing;
