@@ -149,6 +149,7 @@ label { font-size: 0.72rem; font-weight: 700; color: var(--text-2); display: blo
 .hero-stat-label { font-size: 0.6rem; text-transform: uppercase; letter-spacing: 0.08em; font-weight: 700; color: var(--text-3); margin-bottom: 5px; }
 .hero-stat-value { font-size: 0.9rem; font-weight: 700; font-variant-numeric: tabular-nums; letter-spacing: -0.01em; }
 .hero-stat-value.accent { color: var(--primary); }
+.hero-stat-hint { font-size: 0.55rem; color: var(--text-3); font-weight: 600; margin-top: 3px; letter-spacing: 0.02em; }
 .action-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 16px; }
 .action-btn {
   display: flex; align-items: center; gap: 12px; padding: 16px 18px;
@@ -330,7 +331,7 @@ label { font-size: 0.72rem; font-weight: 700; color: var(--text-2); display: blo
     <div class="login-footer">
       <div class="designer-line">Designed &amp; Developed by</div>
       <div class="designer-name">Pruthvi raj</div>
-      <div class="designer-meta">v9.0 · Made with ⚡ in India</div>
+      <div class="designer-meta">v10.0 · Made with ⚡ in India</div>
     </div>
   </div>
 </div>
@@ -365,9 +366,21 @@ label { font-size: 0.72rem; font-weight: 700; color: var(--text-2); display: blo
         </div>
       </div>
       <div class="hero-stats">
-        <div class="hero-stat"><div class="hero-stat-label">Login</div><div class="hero-stat-value" id="statLogin">—</div></div>
-        <div class="hero-stat"><div class="hero-stat-label">Pending</div><div class="hero-stat-value accent" id="statPending">—</div></div>
-        <div class="hero-stat"><div class="hero-stat-label">Logout</div><div class="hero-stat-value" id="statLogout">—</div></div>
+        <div class="hero-stat">
+          <div class="hero-stat-label">Login</div>
+          <div class="hero-stat-value" id="statLogin">—</div>
+          <div class="hero-stat-hint" id="statLoginHint">—</div>
+        </div>
+        <div class="hero-stat">
+          <div class="hero-stat-label">Pending</div>
+          <div class="hero-stat-value accent" id="statPending">—</div>
+          <div class="hero-stat-hint" id="statPendingHint">—</div>
+        </div>
+        <div class="hero-stat">
+          <div class="hero-stat-label">Expected Logout</div>
+          <div class="hero-stat-value" id="statLogout">—</div>
+          <div class="hero-stat-hint" id="statLogoutHint">—</div>
+        </div>
       </div>
     </div>
     <div class="action-grid">
@@ -786,7 +799,7 @@ function formatTime(d) {
   if (ws.timeFormat === "24") return String(h).padStart(2,"0") + ":" + m;
   const ampm = h >= 12 ? "PM" : "AM";
   const h12 = h % 12 || 12;
-  return String(h12).padStart(2,"0") + ":" + m;
+  return String(h12).padStart(2,"0") + ":" + m + " " + ampm;
 }
 function formatDuration(ms) {
   if (ms < 0) ms = 0;
@@ -872,6 +885,28 @@ function calcWorkedMs(s) {
   }
   return Math.max(0, worked);
 }
+function calcExpectedLogoutMs(s) {
+  if (!s || !s.login) return null;
+  const ws = getWorkSettings();
+  const targetMs = ((ws.workHours * 60) + ws.workMins) * 60000;
+  const breakTargetMs = ((ws.breakHours * 60) + ws.breakMins) * 60000;
+  const login = new Date(s.login).getTime();
+  if (s.logout) return new Date(s.logout).getTime();
+  let expected = login + targetMs + breakTargetMs;
+  if (s.lunch && s.back) {
+    const lunchStart = new Date(s.lunch).getTime();
+    const lunchEnd = new Date(s.back).getTime();
+    const lunchTaken = Math.max(0, lunchEnd - lunchStart);
+    const overBreak = Math.max(0, lunchTaken - breakTargetMs);
+    expected += overBreak;
+  } else if (s.lunch && !s.back) {
+    const lunchStart = new Date(s.lunch).getTime();
+    const lunchSoFar = Math.max(0, Date.now() - lunchStart);
+    const overBreak = Math.max(0, lunchSoFar - breakTargetMs);
+    expected += overBreak;
+  }
+  return expected;
+}
 function renderWork() {
   document.getElementById("workGreeting").textContent = "Hello, " + (getUser() || "there");
   const s = getTodaySession();
@@ -882,8 +917,11 @@ function renderWork() {
   const timerPct = document.getElementById("timerPct");
   const heroFill = document.getElementById("heroFill");
   const statLogin = document.getElementById("statLogin");
+  const statLoginHint = document.getElementById("statLoginHint");
   const statLogout = document.getElementById("statLogout");
+  const statLogoutHint = document.getElementById("statLogoutHint");
   const statPending = document.getElementById("statPending");
+  const statPendingHint = document.getElementById("statPendingHint");
   const statusBadge = document.getElementById("todayStatus");
   const timeline = document.getElementById("todayTimeline");
   const RING_LEN = 251.33;
@@ -896,8 +934,11 @@ function renderWork() {
     timerPct.textContent = "0% complete";
     heroFill.style.strokeDashoffset = RING_LEN;
     statLogin.textContent = "—";
+    statLoginHint.textContent = "not started";
     statLogout.textContent = "—";
+    statLogoutHint.textContent = "after login";
     statPending.textContent = formatDurationHM(targetMs);
+    statPendingHint.textContent = "target " + ws.workHours + "h " + ws.workMins + "m";
     statusBadge.textContent = "Idle"; statusBadge.className = "badge";
     timeline.innerHTML = '<div class="empty-state" style="padding:20px;"><div class="icon">📋</div>No activity yet today.</div>';
     ["btnLunch","btnBack","btnLogout"].forEach(id => document.getElementById(id).classList.add("disabled"));
@@ -907,8 +948,32 @@ function renderWork() {
   const pct = Math.min(100, (worked / targetMs) * 100);
   const pending = Math.max(0, targetMs - worked);
   statLogin.textContent = formatTime(s.login);
-  statLogout.textContent = s.logout ? formatTime(s.logout) : "—";
-  statPending.textContent = s.logout ? "Done" : formatDurationHM(pending);
+  statLoginHint.textContent = "started";
+  const expectedMs = calcExpectedLogoutMs(s);
+  if (expectedMs) {
+    statLogout.textContent = formatTime(expectedMs);
+    if (s.logout) {
+      statLogoutHint.textContent = "actual";
+    } else {
+      const expectedMs2 = calcExpectedLogoutMs(s);
+      const baseExpected = new Date(s.login).getTime() + targetMs + ((ws.breakHours * 60 + ws.breakMins) * 60000);
+      if (expectedMs2 > baseExpected + 60000) {
+        statLogoutHint.textContent = "extended +" + formatDurationHM(expectedMs2 - baseExpected);
+      } else {
+        statLogoutHint.textContent = "target " + ws.workHours + "h " + ws.workMins + "m";
+      }
+    }
+  } else {
+    statLogout.textContent = "—";
+    statLogoutHint.textContent = "—";
+  }
+  if (s.logout) {
+    statPending.textContent = "Done";
+    statPendingHint.textContent = worked >= targetMs ? "✅ target met" : "short by " + formatDurationHM(targetMs - worked);
+  } else {
+    statPending.textContent = formatDurationHM(pending);
+    statPendingHint.textContent = "remaining";
+  }
   if (s.status === "working") {
     timerStatus.textContent = "Working";
     timerValue.textContent = formatDuration(worked);
@@ -1041,7 +1106,8 @@ function scheduleNotifications() {
     if (backNotif > now.getTime()) notifTimers.push(setTimeout(() => sendNativeNotification("🔙 Back to work in 10 min", "Your break ends in 10 minutes.", "wl-back"), backNotif - now.getTime()));
   }
   const targetMs = ((ws.workHours * 60) + ws.workMins) * 60000;
-  const logoutTarget = loginTime + targetMs;
+  const breakTargetMs = ((ws.breakHours * 60) + ws.breakMins) * 60000;
+  const logoutTarget = loginTime + targetMs + breakTargetMs;
   const logoutNotif = logoutTarget - 10 * 60000;
   if (logoutNotif > now.getTime()) notifTimers.push(setTimeout(() => sendNativeNotification("🔴 Logout in 10 min", "Your shift ends in 10 minutes.", "wl-logout"), logoutNotif - now.getTime()));
   if (logoutTarget > now.getTime()) notifTimers.push(setTimeout(() => {
@@ -1160,7 +1226,7 @@ function downloadXlsx() {
   const wb = XLSX.utils.book_new();
   const ws1 = XLSX.utils.json_to_sheet(rows);
   const ws2 = XLSX.utils.json_to_sheet(summary);
-  ws1["!cols"] = [{wch:12},{wch:10},{wch:10},{wch:12},{wch:12},{wch:10},{wch:14},{wch:16},{wch:14},{wch:12},{wch:18}];
+  ws1["!cols"] = [{wch:12},{wch:10},{wch:12},{wch:12},{wch:12},{wch:12},{wch:14},{wch:16},{wch:14},{wch:12},{wch:18}];
   ws2["!cols"] = [{wch:24},{wch:20}];
   XLSX.utils.book_append_sheet(wb, ws2, "Summary");
   XLSX.utils.book_append_sheet(wb, ws1, "Daily Records");
@@ -1352,9 +1418,11 @@ function renderHistory() {
   filtered.forEach(h => {
     const worked = calcWorkedMs(h);
     const isIncomplete = !h.logout || worked < targetMs;
+    const expectedMs = calcExpectedLogoutMs(h);
     const row = document.createElement("div");
     row.className = "history-item";
-    row.innerHTML = '<div><div class="date">' + h.date + '</div><div class="time">' + (h.login ? formatTime(h.login) : "—") + ' → ' + (h.logout ? formatTime(h.logout) : "active") + '</div></div><div style="text-align:right;"><div class="duration ' + (isIncomplete ? "incomplete" : "") + '">' + formatDurationHM(worked) + '</div>' + (isIncomplete ? '<span class="badge muted">Partial</span>' : '<span class="badge success">✓</span>') + '</div>';
+    const expectedStr = expectedMs && !h.logout ? formatTime(expectedMs) : "";
+    row.innerHTML = '<div><div class="date">' + h.date + '</div><div class="time">' + (h.login ? formatTime(h.login) : "—") + ' → ' + (h.logout ? formatTime(h.logout) : (expectedStr ? "expected " + expectedStr : "active")) + '</div></div><div style="text-align:right;"><div class="duration ' + (isIncomplete ? "incomplete" : "") + '">' + formatDurationHM(worked) + '</div>' + (isIncomplete ? '<span class="badge muted">Partial</span>' : '<span class="badge success">✓</span>') + '</div>';
     list.appendChild(row);
   });
 }
