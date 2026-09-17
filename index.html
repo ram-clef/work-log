@@ -301,6 +301,14 @@ label { font-size: 0.72rem; font-weight: 700; color: var(--text-2); display: blo
 .help-tab button.active { background: var(--bg-card); color: var(--primary); box-shadow: var(--shadow-card); }
 .help-panel { display: none; }
 .help-panel.active { display: block; }
+.msg-row { display: flex; gap: 8px; align-items: center; margin-bottom: 8px; }
+.msg-row select { margin-bottom: 0; flex: 1; }
+.msg-row .btn.small { flex-shrink: 0; padding: 9px 12px; }
+.msg-add-row { display: none; gap: 8px; margin-bottom: 4px; }
+.msg-add-row.open { display: flex; }
+.msg-add-row input { margin-bottom: 0; flex: 1; }
+.msg-hint { font-size: 0.68rem; color: var(--text-3); margin-bottom: 12px; }
+.msg-label { font-size: 0.72rem; font-weight: 700; color: var(--text-2); margin-bottom: 6px; display: block; }
 @media (max-width: 420px) {
   .hero-timer { font-size: 1.8rem; }
   .hero-donut { width: 200px; height: 200px; }
@@ -333,7 +341,7 @@ label { font-size: 0.72rem; font-weight: 700; color: var(--text-2); display: blo
     <div class="login-footer">
       <div class="designer-line">Designed &amp; Developed by</div>
       <div class="designer-name">Pruthvi raj</div>
-      <div class="designer-meta">v13.0 · Made with ⚡ in India</div>
+      <div class="designer-meta">v13.1 · Made with ⚡ in India</div>
     </div>
   </div>
 </div>
@@ -544,11 +552,13 @@ label { font-size: 0.72rem; font-weight: 700; color: var(--text-2); display: blo
     </div>
     <div class="card">
       <h3>💬 WhatsApp Messages</h3>
-      <p style="font-size:0.78rem; color:var(--text-2); margin:0 0 14px;">Add or edit options per action. The one marked <strong>Default</strong> is pre-selected.</p>
+      <p style="font-size:0.78rem; color:var(--text-2); margin:0 0 14px;">
+        Pick the default message for each action. Tap <strong>➕</strong> to add more.
+      </p>
       <div id="msgSections"></div>
-      <label style="margin-top:12px;">WhatsApp Group Link (optional)</label>
+      <label style="margin-top:14px;">WhatsApp Group Link (optional)</label>
       <input type="text" id="waGroupLink" placeholder="https://chat.whatsapp.com/...">
-      <button class="btn" id="saveMsgSettings" style="margin-top:8px;">Save Messages</button>
+      <button class="btn" id="saveMsgSettings" style="margin-top:8px;">Save Group Link</button>
     </div>
     <div class="card">
       <h3>🔔 Notifications</h3>
@@ -665,7 +675,7 @@ label { font-size: 0.72rem; font-weight: 700; color: var(--text-2); display: blo
 <div class="toast" id="toast"></div>
 
 <script>
-const APP_VERSION = "13.0";
+const APP_VERSION = "13.1";
 const KEYS = {
   USER: "wl_user", THEME: "wl_theme", ACCENT: "wl_accent", FONT: "wl_font",
   WORK_SETTINGS: "wl_work_settings", MSG_SETTINGS: "wl_msg_settings",
@@ -1148,51 +1158,82 @@ function renderMsgSections() {
     const meta = ACTION_META[action];
     const block = ms[action] || { options: [], default: "" };
     const sec = document.createElement("div");
-    sec.style.marginBottom = "18px";
-    sec.innerHTML = '<div class="section-title">'+meta.label+'</div><div class="msg-chip-group" data-chips="'+action+'" style="display:flex; flex-wrap:wrap; gap:6px; margin-bottom:10px;"></div><div class="add-msg-row" style="display:flex; gap:8px; margin-bottom:14px;"><input type="text" data-input="'+action+'" placeholder="'+meta.placeholder+'" style="margin-bottom:0;"><button class="btn small" data-add="'+action+'">Add</button></div><div class="radio-list" data-defaults="'+action+'"></div>';
+    sec.style.marginBottom = "14px";
+    sec.innerHTML = `
+      <span class="msg-label">${meta.label}</span>
+      <div class="msg-row">
+        <select data-select="${action}"></select>
+        <button class="btn secondary small" data-toggle-add="${action}" title="Add new">➕</button>
+      </div>
+      <div class="msg-add-row" data-addrow="${action}">
+        <input type="text" data-input="${action}" placeholder="${meta.placeholder}">
+        <button class="btn small" data-add="${action}">Add</button>
+        <button class="btn secondary small" data-cancel-add="${action}">✕</button>
+      </div>
+      <div class="msg-hint" data-hint="${action}"></div>
+    `;
     wrap.appendChild(sec);
-    const chipsEl = sec.querySelector('[data-chips="'+action+'"]');
-    const defaultsEl = sec.querySelector('[data-defaults="'+action+'"]');
-    function renderChips() {
-      chipsEl.innerHTML = "";
-      if (!block.options.length) { chipsEl.innerHTML = '<span style="font-size:0.78rem;color:var(--text-3);">No options yet. Add one below.</span>'; return; }
-      block.options.forEach(opt => {
-        const chip = document.createElement("span");
-        chip.style.cssText = "display:inline-flex; align-items:center; gap:6px; padding:7px 11px; border-radius:10px; background:var(--primary-soft); color:var(--primary); font-size:0.78rem; font-weight:700;";
-        chip.innerHTML = '<span>'+opt+'</span><button style="background:none;border:none;cursor:pointer;color:var(--primary);font-weight:800;font-size:0.95rem;padding:0 2px;">×</button>';
-        chip.querySelector("button").addEventListener("click", () => {
-          block.options = block.options.filter(o => o !== opt);
-          if (block.default === opt) block.default = block.options[0] || "";
-          persistMsg(); renderChips(); renderDefaults();
-        });
-        chipsEl.appendChild(chip);
+
+    const selEl = sec.querySelector(`[data-select="${action}"]`);
+    const addRow = sec.querySelector(`[data-addrow="${action}"]`);
+    const inputEl = sec.querySelector(`[data-input="${action}"]`);
+    const hintEl = sec.querySelector(`[data-hint="${action}"]`);
+
+    function renderSelect() {
+      selEl.innerHTML = "";
+      const opts = block.options.length ? block.options : ["—"];
+      opts.forEach(opt => {
+        const o = document.createElement("option");
+        o.value = opt;
+        o.textContent = opt + (opt === block.default ? "  ✓" : "");
+        if (opt === block.default) o.selected = true;
+        selEl.appendChild(o);
       });
+      selEl.disabled = !block.options.length;
+      hintEl.textContent = block.options.length
+        ? "Selected item is the default sent to WhatsApp."
+        : "No messages yet. Tap ➕ to add one.";
     }
-    function renderDefaults() {
-      defaultsEl.innerHTML = "";
-      if (!block.options.length) return;
-      block.options.forEach(opt => {
-        const item = document.createElement("label");
-        item.className = "radio-item" + (opt === block.default ? " selected" : "");
-        item.innerHTML = '<input type="radio" name="default-'+action+'" value="'+opt.replace(/"/g,'&quot;')+'" '+(opt === block.default ? "checked" : "")+'><span class="txt">'+opt+'</span>'+(opt === block.default ? '<span class="badge">Default</span>' : '');
-        item.querySelector("input").addEventListener("change", () => { block.default = opt; persistMsg(); renderDefaults(); });
-        defaultsEl.appendChild(item);
-      });
-    }
-    function persistMsg() { const all = getMsgSettings(); all[action] = block; set(KEYS.MSG_SETTINGS, all); }
-    sec.querySelector('[data-add="'+action+'"]').addEventListener("click", () => {
-      const input = sec.querySelector('[data-input="'+action+'"]');
-      const val = input.value.trim();
-      if (!val) return;
+
+    selEl.addEventListener("change", () => {
+      block.default = selEl.value;
+      const all = getMsgSettings();
+      all[action] = block;
+      set(KEYS.MSG_SETTINGS, all);
+      renderSelect();
+      showToast("Default set: " + block.default);
+    });
+
+    sec.querySelector(`[data-toggle-add="${action}"]`).addEventListener("click", () => {
+      addRow.classList.toggle("open");
+      if (addRow.classList.contains("open")) setTimeout(() => inputEl.focus(), 50);
+    });
+
+    sec.querySelector(`[data-cancel-add="${action}"]`).addEventListener("click", () => {
+      addRow.classList.remove("open");
+      inputEl.value = "";
+    });
+
+    sec.querySelector(`[data-add="${action}"]`).addEventListener("click", () => {
+      const val = inputEl.value.trim();
+      if (!val) { inputEl.focus(); return; }
       if (!block.options.includes(val)) block.options.push(val);
       if (!block.default) block.default = val;
-      input.value = "";
-      persistMsg(); renderChips(); renderDefaults();
+      const all = getMsgSettings();
+      all[action] = block;
+      set(KEYS.MSG_SETTINGS, all);
+      inputEl.value = "";
+      addRow.classList.remove("open");
+      renderSelect();
+      showToast("Added: " + val);
     });
-    sec.querySelector('[data-input="'+action+'"]').addEventListener("keydown", (e) => {
-      if (e.key === "Enter") { e.preventDefault(); sec.querySelector('[data-add="'+action+'"]').click(); }
+
+    inputEl.addEventListener("keydown", (e) => {
+      if (e.key === "Enter") { e.preventDefault(); sec.querySelector(`[data-add="${action}"]`).click(); }
+      if (e.key === "Escape") { sec.querySelector(`[data-cancel-add="${action}"]`).click(); }
     });
-    renderChips(); renderDefaults();
+
+    renderSelect();
   });
   document.getElementById("waGroupLink").value = ms.groupLink || "";
 }
@@ -1620,7 +1661,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     const all = getMsgSettings();
     all.groupLink = document.getElementById("waGroupLink").value.trim();
     set(KEYS.MSG_SETTINGS, all);
-    showToast("Messages saved");
+    showToast("Group link saved");
   });
   document.getElementById("clearHistoryBtn").addEventListener("click", () => {
     if (confirm("Clear all work history? This cannot be undone.")) {
