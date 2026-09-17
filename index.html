@@ -258,6 +258,11 @@ label { font-size: 0.72rem; font-weight: 700; color: var(--text-2); display: blo
 .swatch.active { border-color: var(--primary); background: var(--primary-soft); }
 .swatch .dot { width: 32px; height: 32px; border-radius: 50%; box-shadow: 0 4px 12px rgba(0,0,0,0.12); }
 .swatch .name { font-size: 0.65rem; font-weight: 700; color: var(--text-2); text-transform: capitalize; }
+.toggle-row { display: flex; align-items: center; justify-content: space-between; padding: 12px 0; }
+.toggle-switch { position: relative; width: 52px; height: 30px; background: var(--border); border-radius: 999px; cursor: pointer; transition: all 0.25s; flex-shrink: 0; }
+.toggle-switch::after { content: ""; position: absolute; top: 3px; left: 3px; width: 24px; height: 24px; background: #fff; border-radius: 50%; transition: all 0.25s; box-shadow: 0 2px 6px rgba(0,0,0,0.2); }
+.toggle-switch.on { background: var(--primary); }
+.toggle-switch.on::after { left: 25px; }
 .modal-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.5); z-index: 100; align-items: center; justify-content: center; padding: 16px; backdrop-filter: blur(6px); }
 .modal-overlay.active { display: flex; }
 .modal { background: var(--bg-card); border-radius: 24px; width: 100%; max-width: 560px; max-height: 92vh; overflow-y: auto; padding: 24px; animation: slideUp 0.3s cubic-bezier(0.4,0,0.2,1); box-shadow: var(--shadow-float); }
@@ -324,14 +329,11 @@ label { font-size: 0.72rem; font-weight: 700; color: var(--text-2); display: blo
       <input type="text" id="username" placeholder="e.g. Pruthvi raj" autocomplete="name" autofocus>
       <button class="btn" id="loginBtn">Continue →</button>
       <div style="text-align:center; font-size:0.72rem; color:var(--text-3); margin-top:16px;">🔒 All data stays on this device only</div>
-      <div style="text-align:center; margin-top:14px;">
-        <button class="btn secondary small" id="helpLoginBtn2" style="width:100%;">📱 How to install as an app</button>
-      </div>
     </div>
     <div class="login-footer">
       <div class="designer-line">Designed &amp; Developed by</div>
       <div class="designer-name">Pruthvi raj</div>
-      <div class="designer-meta">v10.0 · Made with ⚡ in India</div>
+      <div class="designer-meta">v12.0 · Made with ⚡ in India</div>
     </div>
   </div>
 </div>
@@ -384,10 +386,10 @@ label { font-size: 0.72rem; font-weight: 700; color: var(--text-2); display: blo
       </div>
     </div>
     <div class="action-grid">
-      <button class="action-btn" id="btnLogin" data-action="login"><span class="action-icon">🟢</span><span>Started Working</span></button>
-      <button class="action-btn" id="btnLunch" data-action="lunch"><span class="action-icon">🍽️</span><span>Lunch Break</span></button>
-      <button class="action-btn" id="btnBack" data-action="back"><span class="action-icon">🔙</span><span>Back to Work</span></button>
-      <button class="action-btn" id="btnLogout" data-action="logout"><span class="action-icon">🔴</span><span>Logout</span></button>
+      <button class="action-btn" id="btnLogin" data-action="login"><span class="action-icon">🟢</span><span>Reached office</span></button>
+      <button class="action-btn" id="btnLunch" data-action="lunch"><span class="action-icon">🍽️</span><span>Lunch break</span></button>
+      <button class="action-btn" id="btnBack" data-action="back"><span class="action-icon">🔙</span><span>Back to work</span></button>
+      <button class="action-btn" id="btnLogout" data-action="logout"><span class="action-icon">🔴</span><span>Sent EOD</span></button>
     </div>
     <div class="card">
       <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:14px;">
@@ -504,14 +506,13 @@ label { font-size: 0.72rem; font-weight: 700; color: var(--text-2); display: blo
     </div>
   </div>
   <div class="container">
-    <div class="card">
-      <h3>📱 Install as App</h3>
+    <div class="card" id="updateCard" style="display:none;">
+      <h3>🔄 Update Available</h3>
       <p style="font-size:0.85rem; color:var(--text-2); margin:0 0 14px; line-height:1.5;">
-        Add Work Log to your home screen so it opens full-screen like a native app.
+        A new version of Work Log is ready. Update to get the latest features.
       </p>
-      <button class="btn" id="installNowBtn" style="display:none;">📲 Install now</button>
-      <button class="btn secondary" id="showHelpBtn" style="margin-top:10px;">📖 Show install steps</button>
-      <div id="installStatus" style="font-size:0.72rem; color:var(--text-3); margin-top:10px; text-align:center;"></div>
+      <button class="btn" id="updateNowBtn">🔄 Update now</button>
+      <div id="updateStatus" style="font-size:0.72rem; color:var(--text-3); margin-top:10px; text-align:center;"></div>
     </div>
     <div class="card">
       <h3>🎨 Appearance</h3>
@@ -523,13 +524,16 @@ label { font-size: 0.72rem; font-weight: 700; color: var(--text-2); display: blo
     <div class="card">
       <h3>⏱️ Working Hours</h3>
       <div style="display:flex; gap:10px;">
-        <div style="flex:1;"><label>Hours</label><input type="number" id="whHours" min="0" max="23" value="9"></div>
-        <div style="flex:1;"><label>Minutes</label><input type="number" id="whMins" min="0" max="59" value="0"></div>
+        <div style="flex:1;"><label>Working Hours</label><input type="number" id="whHours" min="0" max="23" value="9"></div>
+        <div style="flex:1;"><label>Working Minutes</label><input type="number" id="whMins" min="0" max="59" value="30"></div>
       </div>
       <div style="display:flex; gap:10px;">
         <div style="flex:1;"><label>Break Hours</label><input type="number" id="breakHours" min="0" max="5" value="1"></div>
         <div style="flex:1;"><label>Break Minutes</label><input type="number" id="breakMins" min="0" max="59" value="0"></div>
       </div>
+      <p style="font-size:0.72rem; color:var(--text-3); margin:-4px 0 12px; line-height:1.5;">
+        Break is inside your working hours. If you take longer than the allowed break, your expected logout shifts by the overage.
+      </p>
       <label>Time Format</label>
       <select id="timeFormat">
         <option value="12">12-hour (default)</option>
@@ -539,7 +543,7 @@ label { font-size: 0.72rem; font-weight: 700; color: var(--text-2); display: blo
     </div>
     <div class="card">
       <h3>💬 WhatsApp Messages</h3>
-      <p style="font-size:0.78rem; color:var(--text-2); margin:0 0 14px;">Add multiple options per action. The one marked <strong>Default</strong> is pre-selected.</p>
+      <p style="font-size:0.78rem; color:var(--text-2); margin:0 0 14px;">Add or edit options per action. The one marked <strong>Default</strong> is pre-selected.</p>
       <div id="msgSections"></div>
       <label style="margin-top:12px;">WhatsApp Group Link (optional)</label>
       <input type="text" id="waGroupLink" placeholder="https://chat.whatsapp.com/...">
@@ -547,8 +551,17 @@ label { font-size: 0.72rem; font-weight: 700; color: var(--text-2); display: blo
     </div>
     <div class="card">
       <h3>🔔 Notifications</h3>
-      <button class="btn secondary" id="testNotifBtn">Send test notification</button>
-      <p style="font-size:0.72rem; color:var(--text-3); margin-top:10px; text-align:center;">Notifications use your phone's native notification system.</p>
+      <div class="toggle-row">
+        <div>
+          <div style="font-weight:700; font-size:0.9rem;">Enable notifications</div>
+          <div style="font-size:0.75rem; color:var(--text-2); margin-top:2px;">Lunch, back-to-work, logout reminders</div>
+        </div>
+        <div class="toggle-switch" id="notifToggle"></div>
+      </div>
+      <button class="btn secondary" id="testNotifBtn" style="margin-top:14px;">Send test notification</button>
+      <p style="font-size:0.72rem; color:var(--text-3); margin-top:10px; text-align:center;">
+        Uses your phone's native notification system with the Work Log icon.
+      </p>
     </div>
     <div class="card">
       <h3>⚠️ Data</h3>
@@ -576,12 +589,9 @@ label { font-size: 0.72rem; font-weight: 700; color: var(--text-2); display: blo
         <li><strong>Tap the ⋮ menu</strong> Top-right corner of Chrome. Look for <strong>"Install app"</strong> or <strong>"Add to Home screen"</strong>.</li>
         <li><strong>Tap "Install app"</strong> If you only see "Add to Home screen", Chrome still considers it a valid PWA — pick it anyway.</li>
         <li><strong>Confirm the install</strong> Chrome shows a dialog. Tap <strong>Install</strong>.</li>
-        <li><strong>Find the icon</strong> Open your app drawer or home screen. The Work Log icon with a green "WL" badge appears there.</li>
+        <li><strong>Find the icon</strong> Open your app drawer or home screen. The Work Log icon appears there.</li>
         <li><strong>Launch it</strong> Tap the icon — it opens in standalone mode with no URL bar. That's the PWA.</li>
       </ol>
-      <p style="font-size:0.75rem; color:var(--text-3); margin-top:12px;">
-        If "Install app" doesn't appear: make sure the URL is HTTPS (github.io is), refresh once, and wait 10 seconds. Chrome sometimes needs a moment to detect the manifest.
-      </p>
     </div>
     <div class="help-panel" data-help-panel="ios">
       <ol class="help-steps">
@@ -592,21 +602,15 @@ label { font-size: 0.72rem; font-weight: 700; color: var(--text-2); display: blo
         <li><strong>Tap "Add"</strong> Top-right corner.</li>
         <li><strong>Launch it</strong> The new icon appears on your home screen. Tapping it opens Safari-less full-screen — that's iOS's PWA mode.</li>
       </ol>
-      <p style="font-size:0.75rem; color:var(--text-3); margin-top:12px;">
-        iOS limitations: notifications require the app to be added to home screen first, then notification permission granted inside the app.
-      </p>
     </div>
     <div class="help-panel" data-help-panel="desktop">
       <ol class="help-steps">
         <li><strong>Open in Chrome or Edge</strong> Visit <code>https://ram-clef.github.io/work-log/</code>.</li>
-        <li><strong>Look at the address bar</strong> A small install icon (⊕ or a monitor with a down-arrow) appears on the right side of the address bar.</li>
+        <li><strong>Look at the address bar</strong> A small install icon (⊕) appears on the right side of the address bar.</li>
         <li><strong>Click the install icon</strong> A popup appears: "Install Work Log".</li>
         <li><strong>Click Install</strong> Chrome creates a desktop shortcut and opens the app in its own window.</li>
-        <li><strong>Pin it</strong> Right-click the taskbar/dock icon → Pin. Launch anytime.</li>
+        <li><strong>Pin it</strong> Right-click the taskbar/dock icon → Pin.</li>
       </ol>
-      <p style="font-size:0.75rem; color:var(--text-3); margin-top:12px;">
-        If no install icon appears, go to Chrome's ⋮ menu → Cast, save, and share → Install page as app.
-      </p>
     </div>
     <div class="modal-actions" style="margin-top:20px;">
       <button class="btn" id="helpClose">Got it</button>
@@ -650,10 +654,12 @@ label { font-size: 0.72rem; font-weight: 700; color: var(--text-2); display: blo
 <div class="toast" id="toast"></div>
 
 <script>
+const APP_VERSION = "12.0";
 const KEYS = {
   USER: "wl_user", THEME: "wl_theme", ACCENT: "wl_accent", FONT: "wl_font",
   WORK_SETTINGS: "wl_work_settings", MSG_SETTINGS: "wl_msg_settings",
-  HISTORY: "wl_history", ACTIVE_SESSION: "wl_active_session"
+  HISTORY: "wl_history", ACTIVE_SESSION: "wl_active_session",
+  NOTIF_ENABLED: "wl_notif_enabled", LAST_CHECK: "wl_last_update_check"
 };
 const COLORS = [
   { id: "green", name: "Green", color: "#2ab27a" },
@@ -679,18 +685,20 @@ const FONTS = [
   { id: "worksans", name: "Work Sans", google: "Work+Sans:wght@400;600;700;800" },
   { id: "mono", name: "Monospace" }
 ];
-const DEFAULT_WORK_SETTINGS = { workHours: 9, workMins: 0, breakHours: 1, breakMins: 0, timeFormat: "12" };
+const DEFAULT_WORK_SETTINGS = { workHours: 9, workMins: 30, breakHours: 1, breakMins: 0, timeFormat: "12" };
 const DEFAULT_MSG_SETTINGS = {
-  login: { options: ["Started Working", "Logged In", "Day Started", "Reached Office"], default: "Started Working" },
-  lunch: { options: ["Going for Lunch Break", "Lunch Break", "Having Lunch"], default: "Going for Lunch Break" },
-  back: { options: ["Back to Work", "Resuming Work", "Back from Lunch"], default: "Back to Work" },
-  logout: { options: ["Logged Out for the day", "Signing Off", "Day Ended", "Leaving Office"], default: "Logged Out for the day" },
+  login:  { options: ["Reached office"], default: "Reached office" },
+  lunch:  { options: ["Lunch break"], default: "Lunch break" },
+  back:   { options: ["Back to work"], default: "Back to work" },
+  logout: { options: ["Sent EOD"], default: "Sent EOD" },
   groupLink: ""
 };
-function get(key, fallback) { try { const raw = localStorage.getItem(key); return raw ? JSON.parse(raw) : fallback; } catch { return fallback; } }
+function get(key, fallback) { try { const raw = localStorage.getItem(key); return raw === null ? fallback : JSON.parse(raw); } catch { return fallback; } }
 function set(key, val) { localStorage.setItem(key, JSON.stringify(val)); }
 function getUser() { return localStorage.getItem(KEYS.USER) || ""; }
 function setUser(n) { localStorage.setItem(KEYS.USER, n); }
+function isNotifEnabled() { const v = get(KEYS.NOTIF_ENABLED, true); return v !== false; }
+function setNotifEnabled(v) { set(KEYS.NOTIF_ENABLED, !!v); }
 function getWorkSettings() {
   const raw = get(KEYS.WORK_SETTINGS, null);
   if (!raw) { set(KEYS.WORK_SETTINGS, DEFAULT_WORK_SETTINGS); return { ...DEFAULT_WORK_SETTINGS }; }
@@ -825,26 +833,33 @@ function showToast(msg) {
   toastTimer = setTimeout(() => t.classList.remove("show"), 2500);
 }
 async function requestNotificationPermission() {
-  if (!("Notification" in window)) return;
-  if (Notification.permission === "default") { try { await Notification.requestPermission(); } catch {} }
+  if (!("Notification" in window)) return false;
+  if (Notification.permission === "granted") return true;
+  if (Notification.permission === "denied") return false;
+  try { const r = await Notification.requestPermission(); return r === "granted"; } catch { return false; }
 }
 async function sendNativeNotification(title, body, tag) {
-  tag = tag || "wl-" + Date.now();
+  if (!isNotifEnabled()) return;
   if (!("Notification" in window) || Notification.permission !== "granted") { showToast(title + " · " + body); return; }
+  tag = tag || "wl-" + Date.now();
+  const iconUrl = new URL("/work-log/icon-192.png", location.origin).href;
   try {
     const reg = await navigator.serviceWorker.ready;
     if (reg && reg.showNotification) {
       await reg.showNotification(title, {
-        body: body, tag: tag,
-        icon: "/work-log/icon-192.png",
-        badge: "/work-log/icon-192.png",
-        vibrate: [180, 90, 180]
+        body: body,
+        tag: tag,
+        icon: iconUrl,
+        badge: iconUrl,
+        vibrate: [180, 90, 180],
+        requireInteraction: false,
+        silent: false
       });
     } else {
-      new Notification(title, { body: body, icon: "/work-log/icon-192.png" });
+      new Notification(title, { body: body, icon: iconUrl, badge: iconUrl });
     }
   } catch (e) {
-    try { new Notification(title, { body: body }); } catch {}
+    try { new Notification(title, { body: body, icon: iconUrl }); } catch {}
   }
 }
 let timerInterval = null;
@@ -888,11 +903,11 @@ function calcWorkedMs(s) {
 function calcExpectedLogoutMs(s) {
   if (!s || !s.login) return null;
   const ws = getWorkSettings();
-  const targetMs = ((ws.workHours * 60) + ws.workMins) * 60000;
+  const totalWindowMs = ((ws.workHours * 60) + ws.workMins) * 60000;
   const breakTargetMs = ((ws.breakHours * 60) + ws.breakMins) * 60000;
   const login = new Date(s.login).getTime();
   if (s.logout) return new Date(s.logout).getTime();
-  let expected = login + targetMs + breakTargetMs;
+  let expected = login + totalWindowMs;
   if (s.lunch && s.back) {
     const lunchStart = new Date(s.lunch).getTime();
     const lunchEnd = new Date(s.back).getTime();
@@ -950,19 +965,12 @@ function renderWork() {
   statLogin.textContent = formatTime(s.login);
   statLoginHint.textContent = "started";
   const expectedMs = calcExpectedLogoutMs(s);
+  const baseExpected = new Date(s.login).getTime() + targetMs;
   if (expectedMs) {
     statLogout.textContent = formatTime(expectedMs);
-    if (s.logout) {
-      statLogoutHint.textContent = "actual";
-    } else {
-      const expectedMs2 = calcExpectedLogoutMs(s);
-      const baseExpected = new Date(s.login).getTime() + targetMs + ((ws.breakHours * 60 + ws.breakMins) * 60000);
-      if (expectedMs2 > baseExpected + 60000) {
-        statLogoutHint.textContent = "extended +" + formatDurationHM(expectedMs2 - baseExpected);
-      } else {
-        statLogoutHint.textContent = "target " + ws.workHours + "h " + ws.workMins + "m";
-      }
-    }
+    if (s.logout) statLogoutHint.textContent = "actual";
+    else if (expectedMs > baseExpected + 60000) statLogoutHint.textContent = "extended +" + formatDurationHM(expectedMs - baseExpected);
+    else statLogoutHint.textContent = "target " + ws.workHours + "h " + ws.workMins + "m · break " + ws.breakHours + "h " + ws.breakMins + "m";
   } else {
     statLogout.textContent = "—";
     statLogoutHint.textContent = "—";
@@ -1000,10 +1008,10 @@ function renderWork() {
     ["btnLogin","btnLunch","btnBack","btnLogout"].forEach(id => document.getElementById(id).classList.add("disabled"));
   }
   const events = [];
-  if (s.login) events.push({ dot: "var(--primary)", label: "🟢 Login", time: formatTime(s.login) });
-  if (s.lunch) events.push({ dot: "var(--warning)", label: "🍽️ Lunch", time: formatTime(s.lunch) });
+  if (s.login) events.push({ dot: "var(--primary)", label: "🟢 Reached office", time: formatTime(s.login) });
+  if (s.lunch) events.push({ dot: "var(--warning)", label: "🍽️ Lunch break", time: formatTime(s.lunch) });
   if (s.back) events.push({ dot: "var(--success)", label: "🔙 Back to work", time: formatTime(s.back) });
-  if (s.logout) events.push({ dot: "var(--danger)", label: "🔴 Logout", time: formatTime(s.logout) });
+  if (s.logout) events.push({ dot: "var(--danger)", label: "🔴 Sent EOD", time: formatTime(s.logout) });
   timeline.innerHTML = events.length ? events.map(e => '<div class="timeline-item"><div class="timeline-dot" style="background:'+e.dot+';"></div><div class="timeline-label">'+e.label+'</div><div class="timeline-time">'+e.time+'</div></div>').join("") : '<div class="empty-state" style="padding:20px;"><div class="icon">📋</div>No activity yet today.</div>';
 }
 function startTimer() {
@@ -1020,10 +1028,10 @@ function confirmAction(action) {
   const block = msg[action] || { options: [], default: "" };
   const options = block.options && block.options.length ? block.options : ["—"];
   let title = "", message = "";
-  if (action === "login") { title = "Start Working?"; message = "Pick the message to send to your WhatsApp group."; }
-  if (action === "lunch") { title = "Going for Lunch?"; message = "Pick the message to send to your WhatsApp group."; }
-  if (action === "back") { title = "Back to Work?"; message = "Pick the message to send to your WhatsApp group."; }
-  if (action === "logout") { title = "Log Out?"; message = "Pick the message to send to your WhatsApp group."; }
+  if (action === "login") { title = "Reached office?"; message = "Pick the message to send to your WhatsApp group."; }
+  if (action === "lunch") { title = "Going for lunch?"; message = "Pick the message to send to your WhatsApp group."; }
+  if (action === "back") { title = "Back to work?"; message = "Pick the message to send to your WhatsApp group."; }
+  if (action === "logout") { title = "Send EOD?"; message = "Pick the message to send to your WhatsApp group."; }
   document.getElementById("confirmTitle").textContent = title;
   document.getElementById("confirmMessage").textContent = message;
   const list = document.getElementById("confirmMsgList");
@@ -1057,10 +1065,10 @@ function executeConfirmedAction() {
   pendingAction = null;
 }
 const ACTION_LABELS = {
-  login:  { emoji: "🟢", verb: "Login recorded",   msg: "Your work day has started. Timer is running." },
+  login:  { emoji: "🟢", verb: "Reached office", msg: "Your work day has started. Timer is running." },
   lunch:  { emoji: "🍽️", verb: "Lunch break started", msg: "Enjoy your break. The timer will pause when you come back." },
-  back:   { emoji: "🔙", verb: "Back to work",     msg: "Welcome back. Timer has resumed." },
-  logout: { emoji: "🔴", verb: "Day complete",     msg: "Great work today. Your hours have been saved." }
+  back:   { emoji: "🔙", verb: "Back to work", msg: "Welcome back. Timer has resumed." },
+  logout: { emoji: "🔴", verb: "EOD sent · Day complete", msg: "Great work today. Your hours have been saved." }
 };
 function confirmVerification() {
   if (!verifyAction) return;
@@ -1091,6 +1099,7 @@ function retryVerification() {
 let notifTimers = [];
 function scheduleNotifications() {
   notifTimers.forEach(t => clearTimeout(t)); notifTimers = [];
+  if (!isNotifEnabled()) return;
   const s = getTodaySession();
   if (!s || !s.login || s.status === "loggedout") return;
   const ws = getWorkSettings();
@@ -1106,20 +1115,19 @@ function scheduleNotifications() {
     if (backNotif > now.getTime()) notifTimers.push(setTimeout(() => sendNativeNotification("🔙 Back to work in 10 min", "Your break ends in 10 minutes.", "wl-back"), backNotif - now.getTime()));
   }
   const targetMs = ((ws.workHours * 60) + ws.workMins) * 60000;
-  const breakTargetMs = ((ws.breakHours * 60) + ws.breakMins) * 60000;
-  const logoutTarget = loginTime + targetMs + breakTargetMs;
+  const logoutTarget = loginTime + targetMs;
   const logoutNotif = logoutTarget - 10 * 60000;
-  if (logoutNotif > now.getTime()) notifTimers.push(setTimeout(() => sendNativeNotification("🔴 Logout in 10 min", "Your shift ends in 10 minutes.", "wl-logout"), logoutNotif - now.getTime()));
+  if (logoutNotif > now.getTime()) notifTimers.push(setTimeout(() => sendNativeNotification("🔴 EOD in 10 min", "Your shift ends in 10 minutes.", "wl-logout"), logoutNotif - now.getTime()));
   if (logoutTarget > now.getTime()) notifTimers.push(setTimeout(() => {
     const sess = getTodaySession();
-    if (sess && sess.status !== "loggedout") sendNativeNotification("⏰ Working hours complete", "Don't forget to log out for the day.", "wl-overwork");
+    if (sess && sess.status !== "loggedout") sendNativeNotification("⏰ Working hours complete", "Don't forget to send EOD.", "wl-overwork");
   }, logoutTarget - now.getTime()));
 }
 const ACTION_META = {
-  login: { label: "🟢 Login / Started Working", placeholder: "e.g. Started Working" },
-  lunch: { label: "🍽️ Lunch Break", placeholder: "e.g. Going for Lunch Break" },
-  back: { label: "🔙 Back to Work", placeholder: "e.g. Back to Work" },
-  logout: { label: "🔴 Logout", placeholder: "e.g. Logged Out for the day" }
+  login:  { label: "🟢 Reached office", placeholder: "e.g. Reached office" },
+  lunch:  { label: "🍽️ Lunch break", placeholder: "e.g. Lunch break" },
+  back:   { label: "🔙 Back to work", placeholder: "e.g. Back to work" },
+  logout: { label: "🔴 Sent EOD", placeholder: "e.g. Sent EOD" }
 };
 function renderMsgSections() {
   const wrap = document.getElementById("msgSections");
@@ -1438,7 +1446,8 @@ function showView(name) {
     renderColorGrid();
     renderFontSelect();
     renderMsgSections();
-    updateInstallUI();
+    renderNotifToggle();
+    checkForUpdates();
     const ws = getWorkSettings();
     document.getElementById("whHours").value = ws.workHours;
     document.getElementById("whMins").value = ws.workMins;
@@ -1447,36 +1456,56 @@ function showView(name) {
     document.getElementById("timeFormat").value = ws.timeFormat || "12";
   }
 }
+function renderNotifToggle() {
+  const t = document.getElementById("notifToggle");
+  if (!t) return;
+  t.classList.toggle("on", isNotifEnabled());
+}
 function openHelp() { document.getElementById("helpOverlay").classList.add("active"); }
 function closeHelp() { document.getElementById("helpOverlay").classList.remove("active"); }
-let deferredPrompt = null;
-window.addEventListener("beforeinstallprompt", (e) => {
-  e.preventDefault();
-  deferredPrompt = e;
-  updateInstallUI();
-});
-window.addEventListener("appinstalled", () => {
-  deferredPrompt = null;
-  updateInstallUI();
-  showToast("🎉 Work Log installed!");
-});
-function updateInstallUI() {
-  const btn = document.getElementById("installNowBtn");
-  const status = document.getElementById("installStatus");
-  if (!btn || !status) return;
-  const isStandalone = window.matchMedia("(display-mode: standalone)").matches || window.navigator.standalone === true;
-  if (isStandalone) {
-    btn.style.display = "none";
-    status.textContent = "✅ Already installed and running as an app";
-    return;
+async function checkForUpdates() {
+  const card = document.getElementById("updateCard");
+  const status = document.getElementById("updateStatus");
+  if (!card || !status) return;
+  try {
+    const res = await fetch("https://api.github.com/repos/ram-clef/work-log/commits?per_page=1", { cache: "no-store" });
+    if (!res.ok) throw new Error("fetch failed");
+    const data = await res.json();
+    if (!data || !data[0]) return;
+    const latestSha = data[0].sha;
+    const lastSeen = localStorage.getItem(KEYS.LAST_CHECK) || "";
+    if (lastSeen && lastSeen !== latestSha) {
+      card.style.display = "block";
+      const msg = data[0].commit.message.split("\n")[0];
+      status.textContent = "Latest: " + msg.slice(0, 60);
+    } else {
+      card.style.display = "none";
+    }
+  } catch (e) {
+    card.style.display = "none";
   }
-  if (deferredPrompt) {
-    btn.style.display = "block";
-    status.textContent = "Ready to install — tap the button above";
-  } else {
-    btn.style.display = "none";
-    const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent);
-    status.textContent = isIOS ? "On iPhone: use Safari's Share → Add to Home Screen" : "Open the browser menu to install, or tap 'Show install steps'";
+}
+async function performUpdate() {
+  const status = document.getElementById("updateStatus");
+  status.textContent = "Updating…";
+  try {
+    if ("caches" in window) {
+      const keys = await caches.keys();
+      await Promise.all(keys.map(k => caches.delete(k)));
+    }
+    if ("serviceWorker" in navigator) {
+      const regs = await navigator.serviceWorker.getRegistrations();
+      await Promise.all(regs.map(r => r.unregister()));
+    }
+    try {
+      const res = await fetch("https://api.github.com/repos/ram-clef/work-log/commits?per_page=1", { cache: "no-store" });
+      const data = await res.json();
+      if (data && data[0]) localStorage.setItem(KEYS.LAST_CHECK, data[0].sha);
+    } catch {}
+    status.textContent = "Update complete. Reloading…";
+    setTimeout(() => location.reload(true), 800);
+  } catch (e) {
+    status.textContent = "Update failed. Please refresh manually.";
   }
 }
 document.addEventListener("DOMContentLoaded", () => {
@@ -1544,15 +1573,29 @@ document.addEventListener("DOMContentLoaded", () => {
   document.getElementById("filterYear").addEventListener("change", renderHistory);
   document.getElementById("downloadXlsxBtn").addEventListener("click", downloadXlsx);
   document.getElementById("testNotifBtn").addEventListener("click", async () => {
-    await requestNotificationPermission();
-    sendNativeNotification("🔔 Test notification", "If you see this as a system notification, everything is working!", "wl-test");
+    const ok = await requestNotificationPermission();
+    if (!ok) { showToast("Notifications blocked in browser settings"); return; }
+    if (!isNotifEnabled()) { showToast("Enable notifications first"); return; }
+    sendNativeNotification("🔔 Test notification", "Work Log is working. You'll get reminders with the app icon.", "wl-test");
+  });
+  document.getElementById("notifToggle").addEventListener("click", () => {
+    const next = !isNotifEnabled();
+    setNotifEnabled(next);
+    renderNotifToggle();
+    if (next) {
+      requestNotificationPermission().then(ok => {
+        if (ok) sendNativeNotification("🔔 Notifications enabled", "You'll get reminders for lunch, back-to-work, and logout.", "wl-enabled");
+        else showToast("Enable notifications in browser settings");
+      });
+    } else {
+      showToast("Notifications disabled");
+    }
+    scheduleNotifications();
   });
   document.getElementById("helpLoginBtn").addEventListener("click", openHelp);
-  document.getElementById("helpLoginBtn2").addEventListener("click", openHelp);
   document.getElementById("helpHomeBtn").addEventListener("click", openHelp);
   document.getElementById("helpDashBtn").addEventListener("click", openHelp);
   document.getElementById("helpSettingsBtn").addEventListener("click", openHelp);
-  document.getElementById("showHelpBtn").addEventListener("click", openHelp);
   document.getElementById("helpClose").addEventListener("click", closeHelp);
   document.getElementById("helpOverlay").addEventListener("click", e => {
     if (e.target.id === "helpOverlay") closeHelp();
@@ -1565,20 +1608,22 @@ document.addEventListener("DOMContentLoaded", () => {
       document.querySelector('[data-help-panel="' + tab.dataset.helpTab + '"]').classList.add("active");
     });
   });
-  document.getElementById("installNowBtn").addEventListener("click", async () => {
-    if (!deferredPrompt) { openHelp(); return; }
-    deferredPrompt.prompt();
-    const choice = await deferredPrompt.userChoice;
-    if (choice.outcome === "accepted") showToast("Installing…");
-    deferredPrompt = null;
-    updateInstallUI();
-  });
-  updateInstallUI();
+  document.getElementById("updateNowBtn").addEventListener("click", performUpdate);
   if (getUser()) { showView("work"); startTimer(); scheduleNotifications(); }
   else showView("login");
   if ("serviceWorker" in navigator) {
     navigator.serviceWorker.register("/work-log/sw.js")
-      .then(() => console.log("SW registered"))
+      .then(reg => {
+        reg.addEventListener("updatefound", () => {
+          const sw = reg.installing;
+          if (!sw) return;
+          sw.addEventListener("statechange", () => {
+            if (sw.state === "installed" && navigator.serviceWorker.controller) {
+              document.getElementById("updateCard").style.display = "block";
+            }
+          });
+        });
+      })
       .catch(err => console.error("SW failed:", err));
   }
 });
