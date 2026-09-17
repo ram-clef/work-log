@@ -170,6 +170,46 @@ label { font-size: 0.72rem; font-weight: 700; color: var(--text-2); display: blo
 .timeline-dot { width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0; }
 .timeline-label { font-size: 0.85rem; font-weight: 600; flex: 1; }
 .timeline-time { font-size: 0.82rem; color: var(--text-2); font-weight: 600; font-variant-numeric: tabular-nums; }
+.timeline-duration {
+  font-size: 0.72rem;
+  color: var(--primary);
+  font-weight: 700;
+  margin-left: 22px;
+  margin-bottom: 8px;
+  padding: 4px 10px;
+  background: var(--primary-soft);
+  border-radius: 8px;
+  display: inline-block;
+  font-variant-numeric: tabular-nums;
+}
+.activity-summary {
+  margin-top: 14px;
+  padding-top: 14px;
+  border-top: 1px solid var(--border);
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+}
+.activity-summary-item {
+  padding: 10px 12px;
+  background: var(--bg-soft);
+  border-radius: 12px;
+  text-align: center;
+}
+.activity-summary-label {
+  font-size: 0.6rem;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  font-weight: 700;
+  color: var(--text-3);
+  margin-bottom: 4px;
+}
+.activity-summary-value {
+  font-size: 0.95rem;
+  font-weight: 800;
+  font-variant-numeric: tabular-nums;
+  color: var(--text);
+}
 .filter-row { display: flex; gap: 10px; margin-bottom: 16px; }
 .filter-row select { margin-bottom: 0; background: var(--bg-card); border-radius: 14px; font-weight: 600; font-size: 0.85rem; padding: 11px 14px; }
 .kpi-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; margin-bottom: 16px; }
@@ -341,7 +381,7 @@ label { font-size: 0.72rem; font-weight: 700; color: var(--text-2); display: blo
     <div class="login-footer">
       <div class="designer-line">Designed &amp; Developed by</div>
       <div class="designer-name">Pruthvi raj</div>
-      <div class="designer-meta" id="loginVersion">v14.0 · Made with ⚡ in India</div>
+      <div class="designer-meta" id="loginVersion">v15.0 · Made with ⚡ in India</div>
     </div>
   </div>
 </div>
@@ -675,7 +715,7 @@ label { font-size: 0.72rem; font-weight: 700; color: var(--text-2); display: blo
 <div class="toast" id="toast"></div>
 
 <script>
-const APP_VERSION = "14.0";
+const APP_VERSION = "15.0";
 const KEYS = {
   USER: "wl_user", THEME: "wl_theme", ACCENT: "wl_accent", FONT: "wl_font",
   WORK_SETTINGS: "wl_work_settings", MSG_SETTINGS: "wl_msg_settings",
@@ -845,6 +885,15 @@ function formatDurationHM(ms) {
   const m = totalMin % 60;
   return h + "h " + m + "m";
 }
+function formatBreakDuration(ms) {
+  if (ms < 0) ms = 0;
+  const totalMin = Math.floor(ms / 60000);
+  const h = Math.floor(totalMin / 60);
+  const m = totalMin % 60;
+  if (h === 0) return m + " min" + (m === 1 ? "" : "s");
+  if (m === 0) return h + " hr" + (h === 1 ? "" : "s");
+  return h + " hr " + m + " min";
+}
 let toastTimer;
 function showToast(msg) {
   const t = document.getElementById("toast");
@@ -921,6 +970,12 @@ function calcWorkedMs(s) {
   }
   return Math.max(0, worked);
 }
+function calcLunchMs(s) {
+  if (!s || !s.lunch) return 0;
+  const lunchStart = new Date(s.lunch).getTime();
+  const lunchEnd = s.back ? new Date(s.back).getTime() : Date.now();
+  return Math.max(0, lunchEnd - lunchStart);
+}
 function calcExpectedLogoutMs(s) {
   if (!s || !s.login) return null;
   const ws = getWorkSettings();
@@ -963,7 +1018,12 @@ function renderWork() {
   const RING_LEN = 251.33;
   const p = getDateParts();
   document.getElementById("heroDate").textContent = p.day + ", " + p.date;
-  ["btnLogin","btnLunch","btnBack","btnLogout"].forEach(id => document.getElementById(id).classList.remove("disabled"));
+
+  const btnLogin = document.getElementById("btnLogin");
+  const btnLunch = document.getElementById("btnLunch");
+  const btnBack = document.getElementById("btnBack");
+  const btnLogout = document.getElementById("btnLogout");
+
   if (!s || !s.login) {
     timerValue.textContent = "00:00:00";
     timerStatus.textContent = "Not Started";
@@ -977,9 +1037,14 @@ function renderWork() {
     statPendingHint.textContent = "target " + ws.workHours + "h " + ws.workMins + "m";
     statusBadge.textContent = "Idle"; statusBadge.className = "badge";
     timeline.innerHTML = '<div class="empty-state" style="padding:20px;"><div class="icon">📋</div>No activity yet today.</div>';
-    ["btnLunch","btnBack","btnLogout"].forEach(id => document.getElementById(id).classList.add("disabled"));
+
+    btnLogin.classList.remove("disabled");
+    btnLunch.classList.add("disabled");
+    btnBack.classList.add("disabled");
+    btnLogout.classList.add("disabled");
     return;
   }
+
   const worked = calcWorkedMs(s);
   const pct = Math.min(100, (worked / targetMs) * 100);
   const pending = Math.max(0, targetMs - worked);
@@ -1003,37 +1068,85 @@ function renderWork() {
     statPending.textContent = formatDurationHM(pending);
     statPendingHint.textContent = "remaining";
   }
-  if (s.status === "working") {
-    timerStatus.textContent = "Working";
-    timerValue.textContent = formatDuration(worked);
-    timerPct.textContent = Math.floor(pct) + "% complete";
-    heroFill.style.strokeDashoffset = RING_LEN - (RING_LEN * pct / 100);
-    statusBadge.textContent = "Working"; statusBadge.className = "badge success";
-    document.getElementById("btnLogin").classList.add("disabled");
-    document.getElementById("btnBack").classList.add("disabled");
-  } else if (s.status === "lunch") {
-    const lunchMs = Date.now() - new Date(s.lunch).getTime();
-    timerStatus.textContent = "On Break";
-    timerValue.textContent = formatDuration(lunchMs);
-    timerPct.textContent = Math.floor(pct) + "% complete";
-    heroFill.style.strokeDashoffset = RING_LEN - (RING_LEN * pct / 100);
-    statusBadge.textContent = "Lunch"; statusBadge.className = "badge warning";
-    ["btnLogin","btnLunch","btnLogout"].forEach(id => document.getElementById(id).classList.add("disabled"));
-  } else if (s.status === "loggedout") {
+
+  if (s.logout) {
     timerStatus.textContent = "Logged Out";
     timerValue.textContent = formatDuration(worked);
     timerPct.textContent = Math.floor(pct) + "% complete";
     heroFill.style.strokeDashoffset = RING_LEN - (RING_LEN * pct / 100);
     statusBadge.textContent = "Done";
     statusBadge.className = worked >= targetMs ? "badge success" : "badge warning";
-    ["btnLogin","btnLunch","btnBack","btnLogout"].forEach(id => document.getElementById(id).classList.add("disabled"));
+
+    btnLogin.classList.add("disabled");
+    btnLunch.classList.add("disabled");
+    btnBack.classList.add("disabled");
+    btnLogout.classList.add("disabled");
+  } else if (s.lunch && !s.back) {
+    const lunchMs = calcLunchMs(s);
+    timerStatus.textContent = "On Break";
+    timerValue.textContent = formatDuration(lunchMs);
+    timerPct.textContent = "break time";
+    heroFill.style.strokeDashoffset = RING_LEN;
+    statusBadge.textContent = "Lunch"; statusBadge.className = "badge warning";
+
+    btnLogin.classList.add("disabled");
+    btnLunch.classList.add("disabled");
+    btnBack.classList.remove("disabled");
+    btnLogout.classList.remove("disabled");
+  } else if (s.lunch && s.back) {
+    timerStatus.textContent = "Working";
+    timerValue.textContent = formatDuration(worked);
+    timerPct.textContent = Math.floor(pct) + "% complete";
+    heroFill.style.strokeDashoffset = RING_LEN - (RING_LEN * pct / 100);
+    statusBadge.textContent = "Working"; statusBadge.className = "badge success";
+
+    btnLogin.classList.add("disabled");
+    btnLunch.classList.add("disabled");
+    btnBack.classList.add("disabled");
+    btnLogout.classList.remove("disabled");
+  } else {
+    timerStatus.textContent = "Working";
+    timerValue.textContent = formatDuration(worked);
+    timerPct.textContent = Math.floor(pct) + "% complete";
+    heroFill.style.strokeDashoffset = RING_LEN - (RING_LEN * pct / 100);
+    statusBadge.textContent = "Working"; statusBadge.className = "badge success";
+
+    btnLogin.classList.add("disabled");
+    btnLunch.classList.remove("disabled");
+    btnBack.classList.add("disabled");
+    btnLogout.classList.remove("disabled");
   }
-  const events = [];
-  if (s.login) events.push({ dot: "var(--primary)", label: "🟢 Reached office", time: formatTime(s.login) });
-  if (s.lunch) events.push({ dot: "var(--warning)", label: "🍽️ Lunch break", time: formatTime(s.lunch) });
-  if (s.back) events.push({ dot: "var(--success)", label: "🔙 Back to work", time: formatTime(s.back) });
-  if (s.logout) events.push({ dot: "var(--danger)", label: "🔴 Sent EOD", time: formatTime(s.logout) });
-  timeline.innerHTML = events.length ? events.map(e => '<div class="timeline-item"><div class="timeline-dot" style="background:'+e.dot+';"></div><div class="timeline-label">'+e.label+'</div><div class="timeline-time">'+e.time+'</div></div>').join("") : '<div class="empty-state" style="padding:20px;"><div class="icon">📋</div>No activity yet today.</div>';
+
+  let html = "";
+  if (s.login) {
+    html += '<div class="timeline-item"><div class="timeline-dot" style="background:var(--primary);"></div><div class="timeline-label">🟢 Reached office</div><div class="timeline-time">'+formatTime(s.login)+'</div></div>';
+  }
+  if (s.lunch) {
+    html += '<div class="timeline-item"><div class="timeline-dot" style="background:var(--warning);"></div><div class="timeline-label">🍽️ Lunch break</div><div class="timeline-time">'+formatTime(s.lunch)+'</div></div>';
+  }
+  if (s.back) {
+    html += '<div class="timeline-item"><div class="timeline-dot" style="background:var(--success);"></div><div class="timeline-label">🔙 Back to work</div><div class="timeline-time">'+formatTime(s.back)+'</div></div>';
+    const lunchMs = calcLunchMs(s);
+    html += '<div style="text-align:center;"><span class="timeline-duration">⏱ Lunch duration: '+formatBreakDuration(lunchMs)+'</span></div>';
+  }
+  if (s.logout) {
+    html += '<div class="timeline-item"><div class="timeline-dot" style="background:var(--danger);"></div><div class="timeline-label">🔴 Sent EOD</div><div class="timeline-time">'+formatTime(s.logout)+'</div></div>';
+  }
+
+  if (s.lunch && s.back) {
+    const lunchMs = calcLunchMs(s);
+    const breakTargetMs = ((ws.breakHours * 60) + ws.breakMins) * 60000;
+    const overMs = Math.max(0, lunchMs - breakTargetMs);
+    html += '<div class="activity-summary">';
+    html += '<div class="activity-summary-item"><div class="activity-summary-label">Lunch taken</div><div class="activity-summary-value">'+formatBreakDuration(lunchMs)+'</div></div>';
+    html += '<div class="activity-summary-item"><div class="activity-summary-label">Break allowed</div><div class="activity-summary-value">'+formatBreakDuration(breakTargetMs)+'</div></div>';
+    if (overMs > 0) {
+      html += '<div class="activity-summary-item" style="grid-column: span 2;"><div class="activity-summary-label">Over break by</div><div class="activity-summary-value" style="color:var(--warning);">+ '+formatBreakDuration(overMs)+'</div></div>';
+    }
+    html += '</div>';
+  }
+
+  timeline.innerHTML = html || '<div class="empty-state" style="padding:20px;"><div class="icon">📋</div>No activity yet today.</div>';
 }
 function startTimer() {
   if (timerInterval) clearInterval(timerInterval);
@@ -1254,6 +1367,7 @@ function downloadXlsx() {
   const targetMs = ((ws.workHours * 60) + ws.workMins) * 60000;
   const rows = hist.slice().sort((a,b) => a.date.localeCompare(b.date)).map(h => {
     const worked = calcWorkedMs(h);
+    const lunchMs = calcLunchMs(h);
     const status = worked >= targetMs ? "Completed" : (h.logout ? "Incomplete" : "Active");
     return {
       Date: h.date,
@@ -1261,6 +1375,7 @@ function downloadXlsx() {
       Login: h.login ? formatTime(h.login) : "",
       "Lunch Start": h.lunch ? formatTime(h.lunch) : "",
       "Lunch End": h.back ? formatTime(h.back) : "",
+      "Lunch Duration": lunchMs ? formatBreakDuration(lunchMs) : "",
       Logout: h.logout ? formatTime(h.logout) : "",
       "Worked (HH:MM)": formatDurationHM(worked),
       "Worked (Seconds)": Math.floor(worked / 1000),
@@ -1270,6 +1385,7 @@ function downloadXlsx() {
     };
   });
   const totalWorked = hist.reduce((a, h) => a + calcWorkedMs(h), 0);
+  const totalLunch = hist.reduce((a, h) => a + calcLunchMs(h), 0);
   const avgWorked = totalWorked / hist.length;
   const completed = hist.filter(h => calcWorkedMs(h) >= targetMs).length;
   const incomplete = hist.length - completed;
@@ -1279,6 +1395,7 @@ function downloadXlsx() {
     { Metric: "Incomplete days", Value: incomplete },
     { Metric: "Success rate", Value: Math.round((completed / hist.length) * 100) + "%" },
     { Metric: "Total hours worked", Value: formatDurationHM(totalWorked) },
+    { Metric: "Total lunch time", Value: formatBreakDuration(totalLunch) },
     { Metric: "Average per day", Value: formatDurationHM(avgWorked) },
     { Metric: "Target per day", Value: ws.workHours + "h " + ws.workMins + "m" },
     { Metric: "Generated on", Value: new Date().toLocaleString() }
@@ -1286,7 +1403,7 @@ function downloadXlsx() {
   const wb = XLSX.utils.book_new();
   const ws1 = XLSX.utils.json_to_sheet(rows);
   const ws2 = XLSX.utils.json_to_sheet(summary);
-  ws1["!cols"] = [{wch:12},{wch:10},{wch:12},{wch:12},{wch:12},{wch:12},{wch:14},{wch:16},{wch:14},{wch:12},{wch:18}];
+  ws1["!cols"] = [{wch:12},{wch:10},{wch:12},{wch:12},{wch:12},{wch:14},{wch:12},{wch:14},{wch:16},{wch:14},{wch:12},{wch:18}];
   ws2["!cols"] = [{wch:24},{wch:20}];
   XLSX.utils.book_append_sheet(wb, ws2, "Summary");
   XLSX.utils.book_append_sheet(wb, ws1, "Daily Records");
@@ -1477,12 +1594,14 @@ function renderHistory() {
   if (!filtered.length) { list.innerHTML = '<div class="empty-state"><div class="icon">📊</div>No records for this period.</div>'; return; }
   filtered.forEach(h => {
     const worked = calcWorkedMs(h);
+    const lunchMs = calcLunchMs(h);
     const isIncomplete = !h.logout || worked < targetMs;
     const expectedMs = calcExpectedLogoutMs(h);
     const row = document.createElement("div");
     row.className = "history-item";
     const expectedStr = expectedMs && !h.logout ? formatTime(expectedMs) : "";
-    row.innerHTML = '<div><div class="date">' + h.date + '</div><div class="time">' + (h.login ? formatTime(h.login) : "—") + ' → ' + (h.logout ? formatTime(h.logout) : (expectedStr ? "expected " + expectedStr : "active")) + '</div></div><div style="text-align:right;"><div class="duration ' + (isIncomplete ? "incomplete" : "") + '">' + formatDurationHM(worked) + '</div>' + (isIncomplete ? '<span class="badge muted">Partial</span>' : '<span class="badge success">✓</span>') + '</div>';
+    const lunchStr = lunchMs ? " · 🍽 " + formatBreakDuration(lunchMs) : "";
+    row.innerHTML = '<div><div class="date">' + h.date + '</div><div class="time">' + (h.login ? formatTime(h.login) : "—") + ' → ' + (h.logout ? formatTime(h.logout) : (expectedStr ? "expected " + expectedStr : "active")) + lunchStr + '</div></div><div style="text-align:right;"><div class="duration ' + (isIncomplete ? "incomplete" : "") + '">' + formatDurationHM(worked) + '</div>' + (isIncomplete ? '<span class="badge muted">Partial</span>' : '<span class="badge success">✓</span>') + '</div>';
     list.appendChild(row);
   });
 }
