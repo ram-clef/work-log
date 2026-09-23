@@ -1,4 +1,5 @@
-const CACHE = "worklog-v16";
+const SW_VERSION = new URL(self.location.href).searchParams.get("v") || "dev";
+const CACHE = "worklog-v" + SW_VERSION;
 const ASSETS = [
   "/work-log/",
   "/work-log/index.html",
