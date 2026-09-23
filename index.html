@@ -31,6 +31,8 @@
 :root[data-accent="teal"]   { --accent-h: 178; --accent-s: 65%; --accent-l: 45%; --accent-l-2: 35%; }
 :root[data-accent="pink"]   { --accent-h: 330; --accent-s: 80%; --accent-l: 62%; --accent-l-2: 50%; }
 :root[data-accent="slate"]  { --accent-h: 215; --accent-s: 20%; --accent-l: 55%; --accent-l-2: 42%; }
+:root[data-accent="amber"]  { --accent-h: 42;  --accent-s: 95%; --accent-l: 52%; --accent-l-2: 42%; }
+:root[data-accent="indigo"] { --accent-h: 245; --accent-s: 75%; --accent-l: 60%; --accent-l-2: 48%; }
 :root[data-font="system"]  { --font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; }
 :root[data-font="inter"]   { --font-family: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
 :root[data-font="poppins"] { --font-family: "Poppins", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
@@ -141,9 +143,9 @@ label { font-size: 0.72rem; font-weight: 700; color: var(--text-2); display: blo
 .hero-donut .track { fill: none; stroke: var(--ring-track); stroke-width: 18; stroke-linecap: round; }
 .hero-donut .fill { fill: none; stroke: url(#heroGrad); stroke-width: 18; stroke-linecap: round; transition: stroke-dashoffset 0.8s cubic-bezier(0.4,0,0.2,1); }
 .hero-center { position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; }
-.hero-timer { font-size: 2rem; font-weight: 800; letter-spacing: -0.03em; font-variant-numeric: tabular-nums; line-height: 1; }
-.hero-pct { font-size: 0.75rem; font-weight: 700; color: var(--primary); margin-top: 6px; }
-.hero-label { font-size: 0.62rem; text-transform: uppercase; letter-spacing: 0.15em; font-weight: 700; color: var(--text-3); margin-top: 8px; }
+.hero-timer { font-size: 1.5rem; font-weight: 800; letter-spacing: -0.03em; font-variant-numeric: tabular-nums; line-height: 1; }
+.hero-pct { font-size: 0.7rem; font-weight: 700; color: var(--primary); margin-top: 6px; }
+.hero-label { font-size: 0.6rem; text-transform: uppercase; letter-spacing: 0.15em; font-weight: 700; color: var(--text-3); margin-top: 8px; }
 .hero-stats { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px; }
 .hero-stat { padding: 10px 6px; background: var(--bg-soft); border-radius: 14px; }
 .hero-stat-label { font-size: 0.6rem; text-transform: uppercase; letter-spacing: 0.08em; font-weight: 700; color: var(--text-3); margin-bottom: 5px; }
@@ -242,7 +244,7 @@ label { font-size: 0.72rem; font-weight: 700; color: var(--text-2); display: blo
 .bar-chart { display: flex; align-items: flex-end; justify-content: space-between; gap: 6px; height: 160px; padding-top: 10px; }
 .bar-col { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: flex-end; height: 100%; gap: 8px; }
 .bar-fill-wrap { width: 100%; height: 100%; display: flex; align-items: flex-end; justify-content: center; }
-.bar-fill { width: 70%; max-width: 24px; background: linear-gradient(180deg, var(--primary) 0%, var(--primary-2) 100%); border-radius: 6px 6px 3px 3px; min-height: 4px; transition: height 0.6s cubic-bezier(0.4,0,0.2,1); }
+.bar-fill { width: 70%; max-width: 24px; background: var(--primary); border-radius: 6px 6px 3px 3px; min-height: 4px; transition: height 0.6s cubic-bezier(0.4,0,0.2,1); }
 .bar-fill.partial { background: var(--ring-track); }
 .bar-label { font-size: 0.62rem; color: var(--text-3); font-weight: 700; text-transform: uppercase; }
 .line-chart-wrap { position: relative; width: 100%; height: 180px; padding: 10px 0; }
@@ -260,8 +262,8 @@ label { font-size: 0.72rem; font-weight: 700; color: var(--text-2); display: blo
 .hbar-value { font-size: 0.8rem; font-weight: 700; font-variant-numeric: tabular-nums; }
 .hbar-track { height: 10px; border-radius: 6px; background: var(--bg-soft); overflow: hidden; }
 .hbar-fill { height: 100%; border-radius: 6px; transition: width 0.8s cubic-bezier(0.4,0,0.2,1); }
-.hbar-fill.primary { background: linear-gradient(90deg, var(--primary), var(--primary-2)); }
-.hbar-fill.info { background: linear-gradient(90deg, var(--info), hsl(220,90%,48%)); }
+.hbar-fill.primary { background: var(--primary); }
+.hbar-fill.info { background: var(--info); }
 .heatmap { display: grid; grid-template-columns: repeat(7, 1fr); gap: 4px; }
 .heat-cell { aspect-ratio: 1; border-radius: 6px; background: var(--bg-soft); transition: all 0.2s; cursor: pointer; }
 .heat-cell.l1 { background: hsl(var(--accent-h), var(--accent-s), var(--accent-l), 0.25); }
@@ -350,7 +352,7 @@ label { font-size: 0.72rem; font-weight: 700; color: var(--text-2); display: blo
 .msg-hint { font-size: 0.68rem; color: var(--text-3); margin-bottom: 12px; }
 .msg-label { font-size: 0.72rem; font-weight: 700; color: var(--text-2); margin-bottom: 6px; display: block; }
 @media (max-width: 420px) {
-  .hero-timer { font-size: 1.8rem; }
+  .hero-timer { font-size: 1.3rem; }
   .hero-donut { width: 200px; height: 200px; }
   .login-title { font-size: 1.6rem; }
   .kpi-tile .kpi-value { font-size: 1.3rem; }
@@ -374,14 +376,14 @@ label { font-size: 0.72rem; font-weight: 700; color: var(--text-2); display: blo
     <p class="login-tagline">Your daily work companion</p>
     <div class="login-card">
       <label for="username">Your name</label>
-      <input type="text" id="username" placeholder="e.g. Pruthvi raj" autocomplete="name" autofocus>
+      <input type="text" id="username" placeholder="RAM" autocomplete="name" autofocus>
       <button class="btn" id="loginBtn">Continue →</button>
       <div style="text-align:center; font-size:0.72rem; color:var(--text-3); margin-top:16px;">🔒 All data stays on this device only</div>
     </div>
     <div class="login-footer">
       <div class="designer-line">Designed &amp; Developed by</div>
       <div class="designer-name">Pruthvi raj</div>
-      <div class="designer-meta" id="loginVersion">v15.0 · Made with ⚡ in India</div>
+      <div class="designer-meta" id="loginVersion">v1.0 · Made with ⚡ in India</div>
     </div>
   </div>
 </div>
@@ -434,10 +436,10 @@ label { font-size: 0.72rem; font-weight: 700; color: var(--text-2); display: blo
       </div>
     </div>
     <div class="action-grid">
-      <button class="action-btn" id="btnLogin" data-action="login"><span class="action-icon">🟢</span><span>Reached office</span></button>
-      <button class="action-btn" id="btnLunch" data-action="lunch"><span class="action-icon">🍽️</span><span>Lunch break</span></button>
-      <button class="action-btn" id="btnBack" data-action="back"><span class="action-icon">🔙</span><span>Back to work</span></button>
-      <button class="action-btn" id="btnLogout" data-action="logout"><span class="action-icon">🔴</span><span>Sent EOD</span></button>
+      <button class="action-btn" id="btnLogin" data-action="login"><span class="action-icon"></span><span>Reached office</span></button>
+      <button class="action-btn" id="btnLunch" data-action="lunch"><span class="action-icon"></span><span>Lunch break</span></button>
+      <button class="action-btn" id="btnBack" data-action="back"><span class="action-icon"></span><span>Back to work</span></button>
+      <button class="action-btn" id="btnLogout" data-action="logout"><span class="action-icon">🚪</span><span>Sent EOD</span></button>
     </div>
     <div class="card">
       <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:14px;">
@@ -708,14 +710,14 @@ label { font-size: 0.72rem; font-weight: 700; color: var(--text-2); display: blo
 
 <div class="bottom-nav" id="bottomNav" style="display:none;">
   <button data-nav="work" class="active"><span class="nav-icon">⏱️</span><span>Work</span></button>
-  <button data-nav="history"><span class="nav-icon">📊</span><span>Dashboard</span></button>
+  <button data-nav="history"><span class="nav-icon">📋</span><span>Dashboard</span></button>
   <button data-nav="settings"><span class="nav-icon">⚙️</span><span>Settings</span></button>
 </div>
 
 <div class="toast" id="toast"></div>
 
 <script>
-const APP_VERSION = "15.0";
+let APP_VERSION = "0.0"; // loaded dynamically from version.json on startup
 const KEYS = {
   USER: "wl_user", THEME: "wl_theme", ACCENT: "wl_accent", FONT: "wl_font",
   WORK_SETTINGS: "wl_work_settings", MSG_SETTINGS: "wl_msg_settings",
@@ -732,7 +734,9 @@ const COLORS = [
   { id: "peach", name: "Peach", color: "#ff9e80" },
   { id: "teal", name: "Teal", color: "#14b8a6" },
   { id: "pink", name: "Pink", color: "#ec4899" },
-  { id: "slate", name: "Slate", color: "#64748b" }
+  { id: "slate", name: "Slate", color: "#64748b" },
+  { id: "amber", name: "Amber", color: "#f59e0b" },
+  { id: "indigo", name: "Indigo", color: "#6366f1" }
 ];
 const FONTS = [
   { id: "inter", name: "Inter", google: "Inter:wght@400;600;700;800" },
@@ -1119,18 +1123,18 @@ function renderWork() {
 
   let html = "";
   if (s.login) {
-    html += '<div class="timeline-item"><div class="timeline-dot" style="background:var(--primary);"></div><div class="timeline-label">🟢 Reached office</div><div class="timeline-time">'+formatTime(s.login)+'</div></div>';
+    html += '<div class="timeline-item"><div class="timeline-dot" style="background:var(--primary);"></div><div class="timeline-label">Reached office</div><div class="timeline-time">'+formatTime(s.login)+'</div></div>';
   }
   if (s.lunch) {
-    html += '<div class="timeline-item"><div class="timeline-dot" style="background:var(--warning);"></div><div class="timeline-label">🍽️ Lunch break</div><div class="timeline-time">'+formatTime(s.lunch)+'</div></div>';
+    html += '<div class="timeline-item"><div class="timeline-dot" style="background:var(--warning);"></div><div class="timeline-label">Lunch break</div><div class="timeline-time">'+formatTime(s.lunch)+'</div></div>';
   }
   if (s.back) {
-    html += '<div class="timeline-item"><div class="timeline-dot" style="background:var(--success);"></div><div class="timeline-label">🔙 Back to work</div><div class="timeline-time">'+formatTime(s.back)+'</div></div>';
+    html += '<div class="timeline-item"><div class="timeline-dot" style="background:var(--success);"></div><div class="timeline-label">Back to work</div><div class="timeline-time">'+formatTime(s.back)+'</div></div>';
     const lunchMs = calcLunchMs(s);
     html += '<div style="text-align:center;"><span class="timeline-duration">⏱ Lunch duration: '+formatBreakDuration(lunchMs)+'</span></div>';
   }
   if (s.logout) {
-    html += '<div class="timeline-item"><div class="timeline-dot" style="background:var(--danger);"></div><div class="timeline-label">🔴 Sent EOD</div><div class="timeline-time">'+formatTime(s.logout)+'</div></div>';
+    html += '<div class="timeline-item"><div class="timeline-dot" style="background:var(--danger);"></div><div class="timeline-label">Sent EOD</div><div class="timeline-time">'+formatTime(s.logout)+'</div></div>';
   }
 
   if (s.lunch && s.back) {
@@ -1199,18 +1203,18 @@ function executeConfirmedAction() {
   pendingAction = null;
 }
 const ACTION_LABELS = {
-  login:  { emoji: "🟢", verb: "Reached office", msg: "Your work day has started. Timer is running." },
-  lunch:  { emoji: "🍽️", verb: "Lunch break started", msg: "Enjoy your break. The timer will pause when you come back." },
-  back:   { emoji: "🔙", verb: "Back to work", msg: "Welcome back. Timer has resumed." },
-  logout: { emoji: "🔴", verb: "EOD sent · Day complete", msg: "Great work today. Your hours have been saved." }
+  login:  { emoji: "", verb: "Reached office", msg: "Your work day has started. Timer is running." },
+  lunch:  { emoji: "", verb: "Lunch break started", msg: "Enjoy your break. The timer will pause when you come back." },
+  back:   { emoji: "", verb: "Back to work", msg: "Welcome back. Timer has resumed." },
+  logout: { emoji: "", verb: "EOD sent · Day complete", msg: "Great work today. Your hours have been saved." }
 };
 function confirmVerification() {
   if (!verifyAction) return;
   startSession(verifyAction);
   document.getElementById("verifyOverlay").classList.remove("active");
-  const info = ACTION_LABELS[verifyAction] || { emoji: "✅", verb: "Confirmed", msg: "Your action has been recorded." };
-  showToast(info.emoji + " " + info.verb);
-  sendNativeNotification(info.emoji + " " + info.verb, info.msg, "wl-action-" + verifyAction);
+  const info = ACTION_LABELS[verifyAction] || { emoji: "", verb: "Confirmed", msg: "Your action has been recorded." };
+  showToast(info.verb);
+  sendNativeNotification(info.verb, info.msg, "wl-action-" + verifyAction);
   verifyAction = null; verifyMessageText = "";
   scheduleNotifications();
 }
@@ -1258,10 +1262,10 @@ function scheduleNotifications() {
   }, logoutTarget - now.getTime()));
 }
 const ACTION_META = {
-  login:  { label: "🟢 Reached office", placeholder: "e.g. Reached office" },
-  lunch:  { label: "🍽️ Lunch break", placeholder: "e.g. Lunch break" },
-  back:   { label: "🔙 Back to work", placeholder: "e.g. Back to work" },
-  logout: { label: "🔴 Sent EOD", placeholder: "e.g. Sent EOD" }
+  login:  { label: "Reached office", placeholder: "e.g. Reached office" },
+  lunch:  { label: "Lunch break", placeholder: "e.g. Lunch break" },
+  back:   { label: "Back to work", placeholder: "e.g. Back to work" },
+  logout: { label: "Sent EOD", placeholder: "e.g. Sent EOD" }
 };
 function renderMsgSections() {
   const wrap = document.getElementById("msgSections");
@@ -1316,6 +1320,53 @@ function renderMsgSections() {
       renderSelect();
       showToast("Default set: " + block.default);
     });
+
+    // Edit button
+    const editBtn = document.createElement("button");
+    editBtn.className = "btn secondary small";
+    editBtn.textContent = "✏️";
+    editBtn.title = "Edit selected message";
+    editBtn.style.marginLeft = "6px";
+    editBtn.addEventListener("click", () => {
+      const val = selEl.value;
+      if (!val || val === "—") return;
+      const newVal = prompt("Edit message:", val);
+      if (newVal && newVal.trim() && newVal.trim() !== val) {
+        const trimmed = newVal.trim();
+        const idx = block.options.indexOf(val);
+        if (idx >= 0) block.options[idx] = trimmed;
+        if (block.default === val) block.default = trimmed;
+        const all = getMsgSettings();
+        all[action] = block;
+        set(KEYS.MSG_SETTINGS, all);
+        renderSelect();
+        showToast("Message updated");
+      }
+    });
+
+    // Delete button
+    const delBtn = document.createElement("button");
+    delBtn.className = "btn secondary small";
+    delBtn.textContent = "🗑️";
+    delBtn.title = "Delete selected message";
+    delBtn.style.marginLeft = "6px";
+    delBtn.addEventListener("click", () => {
+      const val = selEl.value;
+      if (!val || val === "—") return;
+      if (block.options.length <= 1) { showToast("Need at least one message"); return; }
+      if (!confirm("Delete message: \"" + val + "\"?")) return;
+      block.options = block.options.filter(o => o !== val);
+      if (block.default === val) block.default = block.options[0];
+      const all = getMsgSettings();
+      all[action] = block;
+      set(KEYS.MSG_SETTINGS, all);
+      renderSelect();
+      showToast("Message deleted");
+    });
+
+    const row = sec.querySelector(".msg-row");
+    row.appendChild(editBtn);
+    row.appendChild(delBtn);
 
     sec.querySelector(`[data-toggle-add="${action}"]`).addEventListener("click", () => {
       addRow.classList.toggle("open");
@@ -1600,8 +1651,8 @@ function renderHistory() {
     const row = document.createElement("div");
     row.className = "history-item";
     const expectedStr = expectedMs && !h.logout ? formatTime(expectedMs) : "";
-    const lunchStr = lunchMs ? " · 🍽 " + formatBreakDuration(lunchMs) : "";
-    row.innerHTML = '<div><div class="date">' + h.date + '</div><div class="time">' + (h.login ? formatTime(h.login) : "—") + ' → ' + (h.logout ? formatTime(h.logout) : (expectedStr ? "expected " + expectedStr : "active")) + lunchStr + '</div></div><div style="text-align:right;"><div class="duration ' + (isIncomplete ? "incomplete" : "") + '">' + formatDurationHM(worked) + '</div>' + (isIncomplete ? '<span class="badge muted">Partial</span>' : '<span class="badge success">✓</span>') + '</div>';
+    const lunchStr = lunchMs ? " · Break: " + formatBreakDuration(lunchMs) : "";
+    row.innerHTML = '<div><div class="date">' + h.date + '</div><div class="time">' + (h.login ? formatTime(h.login) : "—") + ' → ' + (h.logout ? formatTime(h.logout) : (expectedStr ? "expected " + expectedStr : "active")) + lunchStr + ' · Worked: ' + formatDurationHM(worked) + '</div></div><div style="text-align:right;"><div class="duration ' + (isIncomplete ? "incomplete" : "") + '">' + formatDurationHM(worked) + '</div>' + (isIncomplete ? '<span class="badge muted">Partial</span>' : '<span class="badge success">✓</span>') + '</div>';
     list.appendChild(row);
   });
 }
@@ -1738,11 +1789,20 @@ function restoreJson(file) {
   reader.readAsText(file);
 }
 document.addEventListener("DOMContentLoaded", async () => {
+  // 1. Fetch version.json FIRST — this is now the source of truth
+  const latestVersion = await fetchLatestVersion();
+  if (latestVersion) {
+    APP_VERSION = latestVersion; // dynamic — set from version.json
+  }
+
+  // 2. Update the visible version label
   const versionEl = document.getElementById("loginVersion");
   if (versionEl) versionEl.textContent = "v" + APP_VERSION + " · Made with ⚡ in India";
 
+  // 3. Detect whether the app changed since last visit
   const installedVersion = localStorage.getItem("wl_app_version");
   if (installedVersion && installedVersion !== APP_VERSION) {
+    // App was updated — purge caches so new assets are fetched
     if ("caches" in window) {
       try {
         const keys = await caches.keys();
@@ -1751,28 +1811,6 @@ document.addEventListener("DOMContentLoaded", async () => {
     }
   }
   localStorage.setItem("wl_app_version", APP_VERSION);
-
-  const latestVersion = await fetchLatestVersion();
-  if (latestVersion && latestVersion !== APP_VERSION) {
-    const url = new URL(location.href);
-    if (url.searchParams.get("v") !== latestVersion) {
-      if ("caches" in window) {
-        try {
-          const keys = await caches.keys();
-          await Promise.all(keys.map(k => caches.delete(k)));
-        } catch {}
-      }
-      if ("serviceWorker" in navigator) {
-        try {
-          const regs = await navigator.serviceWorker.getRegistrations();
-          await Promise.all(regs.map(r => r.unregister()));
-        } catch {}
-      }
-      url.searchParams.set("v", latestVersion);
-      location.replace(url.toString());
-      return;
-    }
-  }
 
   initAppearance();
   requestNotificationPermission();
@@ -1842,7 +1880,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     const ok = await requestNotificationPermission();
     if (!ok) { showToast("Notifications blocked in browser settings"); return; }
     if (!isNotifEnabled()) { showToast("Enable notifications first"); return; }
-    sendNativeNotification("🔔 Test notification", "Work Log is working. You'll get reminders with the app icon.", "wl-test");
+    sendNativeNotification("Test notification", "Work Log is working. You'll get reminders with the app icon.", "wl-test");
   });
   document.getElementById("notifToggle").addEventListener("click", () => {
     const next = !isNotifEnabled();
@@ -1850,7 +1888,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     renderNotifToggle();
     if (next) {
       requestNotificationPermission().then(ok => {
-        if (ok) sendNativeNotification("🔔 Notifications enabled", "You'll get reminders for lunch, back-to-work, and logout.", "wl-enabled");
+        if (ok) sendNativeNotification("Notifications enabled", "You'll get reminders for lunch, back-to-work, and logout.", "wl-enabled");
         else showToast("Enable notifications in browser settings");
       });
     } else {
