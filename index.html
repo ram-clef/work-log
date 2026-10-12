@@ -636,6 +636,16 @@ label { font-size: 0.72rem; font-weight: 700; color: var(--text-2); display: blo
       <button class="btn" id="saveMsgSettings" style="margin-top:8px;">Save Group Link</button>
     </div>
     <div class="card">
+      <h3>WhatsApp messages</h3>
+      <div class="toggle-row">
+        <div>
+          <div style="font-weight:700; font-size:0.9rem;">Open WhatsApp for work updates</div>
+          <div style="font-size:0.75rem; color:var(--text-2); margin-top:4px; line-height:1.5;">When off, actions start or stop timers immediately. When on, confirm your message and send it in WhatsApp.</div>
+        </div>
+        <button type="button" class="toggle-switch" id="whatsappToggle" role="switch" aria-label="WhatsApp messages" aria-checked="true" style="padding:0; flex-shrink:0;"></button>
+      </div>
+    </div>
+    <div class="card">
       <h3>🔔 Notifications</h3>
       <div class="toggle-row">
         <div>
@@ -740,13 +750,13 @@ label { font-size: 0.72rem; font-weight: 700; color: var(--text-2); display: blo
 <div class="toast" id="toast"></div>
 
 <script>
-const APP_VERSION = "1.1";
+const APP_VERSION = "1.2";
 const LEGACY_VERSIONS = ["15.0", "15.1", "15.2", "15.3", "15.4", "15.5"];
 const KEYS = {
   USER: "wl_user", THEME: "wl_theme", ACCENT: "wl_accent", FONT: "wl_font",
   WORK_SETTINGS: "wl_work_settings", MSG_SETTINGS: "wl_msg_settings",
   HISTORY: "wl_history", ACTIVE_SESSION: "wl_active_session",
-  NOTIF_ENABLED: "wl_notif_enabled", LAST_CHECK: "wl_last_update_check"
+  WHATSAPP_ENABLED: "wl_whatsapp_enabled", NOTIF_ENABLED: "wl_notif_enabled", LAST_CHECK: "wl_last_update_check"
 };
 const COLORS = [
   { id: "green", name: "Green", color: "#2ab27a" },
@@ -787,6 +797,7 @@ function set(key, val) { localStorage.setItem(key, JSON.stringify(val)); }
 function getUser() { return localStorage.getItem(KEYS.USER) || ""; }
 function setUser(n) { localStorage.setItem(KEYS.USER, n); }
 function isNotifEnabled() { const v = get(KEYS.NOTIF_ENABLED, true); return v !== false; }
+function isWhatsAppEnabled() { return get(KEYS.WHATSAPP_ENABLED, true) !== false; }
 function setNotifEnabled(v) { set(KEYS.NOTIF_ENABLED, !!v); }
 function getWorkSettings() {
   const raw = get(KEYS.WORK_SETTINGS, null);
@@ -1212,6 +1223,7 @@ function confirmAction(action) {
   refreshDay();
   const session = getTodaySession();
   if (action === "login" ? session && session.login : !session || !session.login || session.logout || (action === "lunch" && session.lunch) || (action === "back" && (!session.lunch || session.back))) return;
+  if (!isWhatsAppEnabled()) { recordWorkAction(action); return; }
   const msg = getMsgSettings();
   const block = msg[action] || { options: [], default: "" };
   const options = block.options && block.options.length ? block.options : ["—"];
@@ -1247,9 +1259,12 @@ function executeConfirmedAction() {
   const action = pendingAction, message = pendingMsgChoice;
   pendingAction = null;
   document.getElementById("confirmOverlay").classList.remove("active");
+  recordWorkAction(action);
+  if (isWhatsAppEnabled()) openWhatsApp(message);
+}
+function recordWorkAction(action) {
   startSession(action);
   scheduleNotifications();
-  openWhatsApp(message);
   showToast({login: "Work day started", lunch: "Lunch started · work timer continues", back: "Lunch completed", logout: "Day saved"}[action]);
 }
 let notifTimers = [];
@@ -1685,6 +1700,7 @@ function showView(name) {
     renderFontSelect();
     renderMsgSections();
     renderNotifToggle();
+    renderWhatsAppToggle();
     const ws = getWorkSettings();
     document.getElementById("whHours").value = ws.workHours;
     document.getElementById("whMins").value = ws.workMins;
@@ -1692,6 +1708,11 @@ function showView(name) {
     document.getElementById("breakMins").value = ws.breakMins;
     document.getElementById("timeFormat").value = ws.timeFormat || "12";
   }
+}
+function renderWhatsAppToggle() {
+  const toggle = document.getElementById("whatsappToggle");
+  toggle.classList.toggle("on", isWhatsAppEnabled());
+  toggle.setAttribute("aria-checked", String(isWhatsAppEnabled()));
 }
 function renderNotifToggle() {
   const t = document.getElementById("notifToggle");
@@ -1894,6 +1915,14 @@ document.addEventListener("DOMContentLoaded", async () => {
     if (!ok) { showToast("Notifications blocked in browser settings"); return; }
     if (!isNotifEnabled()) { showToast("Enable notifications first"); return; }
     sendNativeNotification("Test notification", "Work Log is working. You'll get reminders with the app icon.", "wl-test");
+  });
+  document.getElementById("whatsappToggle").addEventListener("click", () => {
+    const enabled = !isWhatsAppEnabled();
+    set(KEYS.WHATSAPP_ENABLED, enabled);
+    renderWhatsAppToggle();
+    pendingAction = null;
+    document.getElementById("confirmOverlay").classList.remove("active");
+    showToast(enabled ? "WhatsApp messages on" : "WhatsApp messages off · timers only");
   });
   document.getElementById("notifToggle").addEventListener("click", () => {
     const next = !isNotifEnabled();
