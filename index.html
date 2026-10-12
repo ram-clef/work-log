@@ -44,23 +44,23 @@
 :root[data-font="worksans"] { --font-family: "Work Sans", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
 :root[data-font="mono"]    { --font-family: ui-monospace, "SF Mono", Menlo, Monaco, monospace; }
 :root[data-theme="light"] {
-  --bg: #eef2ee; --bg-card: #ffffff; --bg-soft: #f6f8f6; --bg-accent-soft: #e6f4ea;
-  --border: #e8ece8; --border-2: #d8e2d8;
-  --text: #0a0f0a; --text-2: #4d5a4d; --text-3: #8a968a;
+  --bg: #f2f2f2; --bg-card: #ffffff; --bg-soft: #f7f7f7; --bg-accent-soft: #eeeeee;
+  --border: #e5e5e5; --border-2: #d4d4d4;
+  --text: #111111; --text-2: #525252; --text-3: #737373;
   --primary: hsl(var(--accent-h), var(--accent-s), var(--accent-l));
   --primary-2: hsl(var(--accent-h), var(--accent-s), var(--accent-l-2));
   --primary-soft: hsl(var(--accent-h), var(--accent-s), var(--accent-l), 0.10);
   --primary-soft-2: hsl(var(--accent-h), var(--accent-s), var(--accent-l), 0.18);
   --primary-text: #ffffff;
   --success: #1c9d52; --warning: #e8a33d; --danger: #e84848; --info: #3b8dff;
-  --shadow-card: 0 1px 2px rgba(15,30,15,0.04), 0 4px 16px rgba(15,30,15,0.04);
-  --shadow-float: 0 8px 28px rgba(15,30,15,0.10);
-  --nav-bg: #ffffff; --ring-track: #e8ece8;
+  --shadow-card: 0 1px 2px rgba(0,0,0,0.04), 0 4px 16px rgba(0,0,0,0.04);
+  --shadow-float: 0 8px 28px rgba(0,0,0,0.10);
+  --nav-bg: #ffffff; --ring-track: #e5e5e5;
 }
 :root[data-theme="dark"] {
-  --bg: #0d1310; --bg-card: #161d18; --bg-soft: #1c2620; --bg-accent-soft: #1a2b1f;
-  --border: #232e26; --border-2: #33413a;
-  --text: #f2f7f3; --text-2: #a4b2a8; --text-3: #6b7a70;
+  --bg: #0a0a0a; --bg-card: #171717; --bg-soft: #222222; --bg-accent-soft: #262626;
+  --border: #303030; --border-2: #404040;
+  --text: #fafafa; --text-2: #b5b5b5; --text-3: #929292;
   --primary: hsl(var(--accent-h), var(--accent-s), var(--accent-l));
   --primary-2: hsl(var(--accent-h), var(--accent-s), var(--accent-l-2));
   --primary-soft: hsl(var(--accent-h), var(--accent-s), var(--accent-l), 0.16);
@@ -69,7 +69,7 @@
   --success: #2ee6a8; --warning: #ffb84d; --danger: #ff5c5c; --info: #3b8dff;
   --shadow-card: 0 1px 2px rgba(0,0,0,0.3), 0 4px 16px rgba(0,0,0,0.3);
   --shadow-float: 0 8px 28px rgba(0,0,0,0.5);
-  --nav-bg: #161d18; --ring-track: #232e26;
+  --nav-bg: #171717; --ring-track: #303030;
 }
 * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
 html, body {
@@ -141,7 +141,7 @@ label { font-size: 0.72rem; font-weight: 700; color: var(--text-2); display: blo
 .hero-donut { position: relative; width: 240px; height: 240px; margin: 0 auto 22px; }
 .hero-donut svg { width: 100%; height: 100%; transform: rotate(-90deg); }
 .hero-donut .track { fill: none; stroke: var(--ring-track); stroke-width: 18; stroke-linecap: round; }
-.hero-donut .fill { fill: none; stroke: url(#heroGrad); stroke-width: 18; stroke-linecap: round; transition: stroke-dashoffset 0.8s cubic-bezier(0.4,0,0.2,1); }
+.hero-donut .fill { fill: none; stroke: var(--primary); stroke-width: 18; stroke-linecap: round; transition: stroke-dashoffset 0.8s cubic-bezier(0.4,0,0.2,1); }
 .hero-center { position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; }
 .hero-timer { font-size: 1.5rem; font-weight: 800; letter-spacing: -0.03em; font-variant-numeric: tabular-nums; line-height: 1; }
 .hero-pct { font-size: 0.7rem; font-weight: 700; color: var(--primary); margin-top: 6px; }
@@ -361,6 +361,18 @@ label { font-size: 0.72rem; font-weight: 700; color: var(--text-2); display: blo
   .action-grid { grid-template-columns: repeat(4, 1fr); }
   .kpi-grid { grid-template-columns: repeat(3, 1fr); }
 }
+
+.lunch-progress { margin: 0 0 22px; padding: 14px 16px; background: var(--bg-soft); border: 1px solid var(--border); border-radius: 14px; }
+.lunch-progress[hidden] { display: none; }
+.lunch-progress-labels { display: flex; justify-content: space-between; gap: 16px; margin-bottom: 10px; font-size: 0.7rem; color: var(--text-2); text-align: left; }
+.lunch-progress-labels > :last-child { text-align: right; }
+.lunch-progress-labels strong { display: block; margin-top: 4px; color: var(--text); font-size: 0.85rem; font-variant-numeric: tabular-nums; }
+.lunch-progress-track { height: 8px; overflow: hidden; border-radius: 999px; background: var(--ring-track); }
+.lunch-progress-fill { height: 100%; width: 0%; background: var(--primary); border-radius: inherit; transition: width 0.4s; }
+.lunch-returned { margin-top: 10px; font-size: 0.72rem; color: var(--text-2); }
+.lunch-returned strong { color: var(--text); font-variant-numeric: tabular-nums; }
+.lunch-progress-percent { margin-top: 8px; font-size: 0.72rem; font-weight: 700; color: var(--primary); }
+
 </style>
 </head>
 <body>
@@ -416,6 +428,17 @@ label { font-size: 0.72rem; font-weight: 700; color: var(--text-2); display: blo
           <div class="hero-pct" id="timerPct">0% complete</div>
           <div class="hero-label" id="timerStatus">Not Started</div>
         </div>
+      </div>
+      <div class="lunch-progress" id="lunchProgress" hidden>
+        <div class="lunch-progress-labels">
+          <div>Lunch started<strong id="lunchStarted">—</strong></div>
+          <div>Expected back to work at<strong id="lunchBackAt">—</strong></div>
+        </div>
+        <div class="lunch-progress-track" id="lunchProgressTrack" role="progressbar" aria-label="Lunch break progress" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0">
+          <div class="lunch-progress-fill" id="lunchProgressFill"></div>
+        </div>
+        <div class="lunch-progress-percent" id="lunchProgressPercent">0%</div>
+        <div class="lunch-returned" id="lunchReturned" hidden>Returned to work at <strong id="lunchReturnedAt">—</strong></div>
       </div>
       <div class="hero-stats">
         <div class="hero-stat">
@@ -583,7 +606,7 @@ label { font-size: 0.72rem; font-weight: 700; color: var(--text-2); display: blo
         <div style="flex:1;"><label>Break Minutes</label><input type="number" id="breakMins" min="0" max="59" value="0"></div>
       </div>
       <p style="font-size:0.72rem; color:var(--text-3); margin:-4px 0 12px; line-height:1.5;">
-        Break is inside your working hours. If you take longer than the allowed break, your expected logout shifts by the overage.
+        Working hours include lunch. The work timer continues during lunch; break duration controls your back-to-work reminder.
       </p>
       <label>Time Format</label>
       <select id="timeFormat">
@@ -696,17 +719,7 @@ label { font-size: 0.72rem; font-weight: 700; color: var(--text-2); display: blo
   </div>
 </div>
 
-<div class="modal-overlay" id="verifyOverlay">
-  <div class="modal">
-    <h3 id="verifyTitle">Confirm your action</h3>
-    <p id="verifyMessage" style="font-size:0.88rem; color:var(--text-2); margin:0 0 16px;">Tap <strong>Yes</strong> to confirm you sent the message in WhatsApp.</p>
-    <div class="confirm-preview" id="verifyPreview">—</div>
-    <div class="modal-actions">
-      <button class="btn secondary" id="verifyNo">No, retry</button>
-      <button class="btn" id="verifyYes">Yes, confirm</button>
-    </div>
-  </div>
-</div>
+
 
 <div class="bottom-nav" id="bottomNav" style="display:none;">
   <button data-nav="work" class="active"><span class="nav-icon">⏱️</span><span>Work</span></button>
@@ -816,7 +829,7 @@ function applyTheme(t) {
   const isDark = t === "dark";
   document.querySelectorAll("[data-theme-toggle]").forEach(btn => btn.textContent = isDark ? "☀️" : "🌙");
   const meta = document.querySelector('meta[name="theme-color"]');
-  if (meta) meta.setAttribute("content", isDark ? "#0d1310" : "#eef2ee");
+  if (meta) meta.setAttribute("content", isDark ? "#0a0a0a" : "#f2f2f2");
 }
 function toggleTheme() { const cur = localStorage.getItem(KEYS.THEME) || "light"; applyTheme(cur === "dark" ? "light" : "dark"); }
 function initAppearance() {
@@ -919,19 +932,18 @@ async function sendNativeNotification(title, body, tag) {
   tag = tag || "wl-" + Date.now();
   const iconUrl = new URL("/work-log/icon-192.png", location.origin).href;
   try {
-    const reg = await navigator.serviceWorker.ready;
+    const reg = await navigator.serviceWorker.getRegistration();
     if (reg && reg.showNotification) {
       await reg.showNotification(title, {
         body: body,
         tag: tag,
         icon: iconUrl,
-        badge: iconUrl,
         vibrate: [180, 90, 180],
         requireInteraction: false,
         silent: false
       });
     } else {
-      new Notification(title, { body: body, icon: iconUrl, badge: iconUrl });
+      new Notification(title, { body: body, icon: iconUrl });
     }
   } catch (e) {
     try { new Notification(title, { body: body, icon: iconUrl }); } catch {}
@@ -945,16 +957,17 @@ function getTodaySession() {
   return null;
 }
 function startSession(action) {
+  reconcileSessions();
   const now = new Date().toISOString();
   const today = getDateParts().dateISO;
   let s = getTodaySession();
   if (!s) s = { date: today, login: null, lunch: null, back: null, logout: null, status: "idle" };
-  if (action === "login") { s.login = now; s.status = "working"; }
+  if (action === "login") { s.login = now; s.workSettings = getWorkSettings(); s.status = "working"; }
   if (action === "lunch") { s.lunch = now; s.status = "lunch"; }
   if (action === "back") { s.back = now; s.status = "working"; }
   if (action === "logout") { s.logout = now; s.status = "loggedout"; }
   setActiveSession(s);
-  if (action === "logout") archiveSession(s);
+  archiveSession(s);
   renderWork();
 }
 function archiveSession(s) {
@@ -965,49 +978,61 @@ function archiveSession(s) {
 }
 function calcWorkedMs(s) {
   if (!s || !s.login) return 0;
-  const login = new Date(s.login).getTime();
-  const end = s.logout ? new Date(s.logout).getTime() : Date.now();
-  let worked = end - login;
-  if (s.lunch) {
-    const lunchStart = new Date(s.lunch).getTime();
-    const lunchEnd = s.back ? new Date(s.back).getTime() : end;
-    if (lunchEnd > lunchStart) worked -= (lunchEnd - lunchStart);
-  }
-  return Math.max(0, worked);
+  return Math.max(0, (s.logout ? new Date(s.logout).getTime() : Date.now()) - new Date(s.login).getTime());
 }
 function calcLunchMs(s) {
   if (!s || !s.lunch) return 0;
   const lunchStart = new Date(s.lunch).getTime();
-  const lunchEnd = s.back ? new Date(s.back).getTime() : Date.now();
+  const lunchEnd = s.back ? new Date(s.back).getTime() : (s.logout ? new Date(s.logout).getTime() : Date.now());
   return Math.max(0, lunchEnd - lunchStart);
 }
 function calcExpectedLogoutMs(s) {
   if (!s || !s.login) return null;
-  const ws = getWorkSettings();
-  const totalWindowMs = ((ws.workHours * 60) + ws.workMins) * 60000;
-  const breakTargetMs = ((ws.breakHours * 60) + ws.breakMins) * 60000;
-  const login = new Date(s.login).getTime();
-  if (s.logout) return new Date(s.logout).getTime();
-  let expected = login + totalWindowMs;
-  if (s.lunch && s.back) {
-    const lunchStart = new Date(s.lunch).getTime();
-    const lunchEnd = new Date(s.back).getTime();
-    const lunchTaken = Math.max(0, lunchEnd - lunchStart);
-    const overBreak = Math.max(0, lunchTaken - breakTargetMs);
-    expected += overBreak;
-  } else if (s.lunch && !s.back) {
-    const lunchStart = new Date(s.lunch).getTime();
-    const lunchSoFar = Math.max(0, Date.now() - lunchStart);
-    const overBreak = Math.max(0, lunchSoFar - breakTargetMs);
-    expected += overBreak;
+  const ws = s.workSettings || getWorkSettings();
+  return new Date(s.login).getTime() + (ws.workHours * 60 + ws.workMins) * 60000;
+}
+function reconcileSessions() {
+  const today = getDateParts().dateISO;
+  let changed = false;
+  function closeOld(s) {
+    if (!s || !s.login || s.date >= today || s.logout) return s;
+    s.logout = new Date(calcExpectedLogoutMs(s)).toISOString();
+    s.status = "loggedout";
+    s.autoLogout = true;
+    return s;
   }
-  return expected;
+  const hist = getHistory();
+  hist.forEach(s => { if (s.login && s.date < today && !s.logout) { closeOld(s); changed = true; } });
+  if (changed) setHistory(hist);
+  const active = getActiveSession();
+  if (active && active.date < today) {
+    closeOld(active);
+    if (active.login) archiveSession(active);
+    setActiveSession(null);
+    return true;
+  }
+  return changed;
+}
+function renderLunchProgress(s, ws) {
+  const panel = document.getElementById("lunchProgress");
+  panel.hidden = !s || !s.lunch;
+  if (panel.hidden) return;
+  const duration = (ws.breakHours * 60 + ws.breakMins) * 60000;
+  const percent = duration > 0 ? Math.min(100, Math.max(0, calcLunchMs(s) / duration * 100)) : 100;
+  document.getElementById("lunchReturned").hidden = !s.back;
+  document.getElementById("lunchReturnedAt").textContent = s.back ? formatTime(s.back) : "—";
+  document.getElementById("lunchStarted").textContent = formatTime(s.lunch);
+  document.getElementById("lunchBackAt").textContent = formatTime(new Date(s.lunch).getTime() + duration);
+  document.getElementById("lunchProgressFill").style.width = percent + "%";
+  document.getElementById("lunchProgressTrack").setAttribute("aria-valuenow", Math.floor(percent));
+  document.getElementById("lunchProgressPercent").textContent = Math.floor(percent) + "%" + (s.back ? " · Lunch completed" : "");
 }
 function renderWork() {
   document.getElementById("workGreeting").textContent = "Hello, " + (getUser() || "there");
   const s = getTodaySession();
-  const ws = getWorkSettings();
+  const ws = (s && s.workSettings) || getWorkSettings();
   const targetMs = ((ws.workHours * 60) + ws.workMins) * 60000;
+  renderLunchProgress(s, ws);
   const timerValue = document.getElementById("timerValue");
   const timerStatus = document.getElementById("timerStatus");
   const timerPct = document.getElementById("timerPct");
@@ -1087,11 +1112,10 @@ function renderWork() {
     btnBack.classList.add("disabled");
     btnLogout.classList.add("disabled");
   } else if (s.lunch && !s.back) {
-    const lunchMs = calcLunchMs(s);
     timerStatus.textContent = "On Break";
-    timerValue.textContent = formatDuration(lunchMs);
-    timerPct.textContent = "break time";
-    heroFill.style.strokeDashoffset = RING_LEN;
+    timerValue.textContent = formatDuration(worked);
+    timerPct.textContent = Math.floor(pct) + "% complete";
+    heroFill.style.strokeDashoffset = RING_LEN - (RING_LEN * pct / 100);
     statusBadge.textContent = "Lunch"; statusBadge.className = "badge warning";
 
     btnLogin.classList.add("disabled");
@@ -1153,16 +1177,26 @@ function renderWork() {
 
   timeline.innerHTML = html || '<div class="empty-state" style="padding:20px;"><div class="icon">📋</div>No activity yet today.</div>';
 }
+function refreshDay() {
+  const rolled = reconcileSessions();
+  if (rolled) {
+    pendingAction = null;
+    document.getElementById("confirmOverlay").classList.remove("active");
+    scheduleNotifications();
+  }
+  renderWork();
+}
 function startTimer() {
   if (timerInterval) clearInterval(timerInterval);
-  timerInterval = setInterval(() => {
-    const s = getTodaySession();
-    if (s && (s.status === "working" || s.status === "lunch")) renderWork();
-  }, 1000);
+  timerInterval = setInterval(refreshDay, 1000);
 }
+
 function openWhatsApp(message) { window.open("https://wa.me/?text=" + encodeURIComponent(message), "_blank"); }
-let pendingAction = null, pendingMsgChoice = "", verifyAction = null, verifyMessageText = "";
+let pendingAction = null, pendingMsgChoice = "";
 function confirmAction(action) {
+  refreshDay();
+  const session = getTodaySession();
+  if (action === "login" ? session && session.login : !session || !session.login || session.logout || (action === "lunch" && session.lunch) || (action === "back" && (!session.lunch || session.back))) return;
   const msg = getMsgSettings();
   const block = msg[action] || { options: [], default: "" };
   const options = block.options && block.options.length ? block.options : ["—"];
@@ -1195,45 +1229,13 @@ function confirmAction(action) {
 }
 function executeConfirmedAction() {
   if (!pendingAction) return;
-  verifyAction = pendingAction;
-  verifyMessageText = pendingMsgChoice;
-  document.getElementById("verifyPreview").textContent = verifyMessageText;
-  document.getElementById("confirmOverlay").classList.remove("active");
-  openWhatsApp(pendingMsgChoice);
-  setTimeout(() => document.getElementById("verifyOverlay").classList.add("active"), 800);
+  const action = pendingAction, message = pendingMsgChoice;
   pendingAction = null;
-}
-const ACTION_LABELS = {
-  login:  { emoji: "", verb: "Reached office", msg: "Your work day has started. Timer is running." },
-  lunch:  { emoji: "", verb: "Lunch break started", msg: "Enjoy your break. The timer will pause when you come back." },
-  back:   { emoji: "", verb: "Back to work", msg: "Welcome back. Timer has resumed." },
-  logout: { emoji: "", verb: "EOD sent · Day complete", msg: "Great work today. Your hours have been saved." }
-};
-function confirmVerification() {
-  if (!verifyAction) return;
-  startSession(verifyAction);
-  document.getElementById("verifyOverlay").classList.remove("active");
-  const info = ACTION_LABELS[verifyAction] || { emoji: "", verb: "Confirmed", msg: "Your action has been recorded." };
-  showToast(info.verb);
-  sendNativeNotification(info.verb, info.msg, "wl-action-" + verifyAction);
-  verifyAction = null; verifyMessageText = "";
+  document.getElementById("confirmOverlay").classList.remove("active");
+  startSession(action);
   scheduleNotifications();
-}
-function retryVerification() {
-  const action = verifyAction, msg = verifyMessageText;
-  document.getElementById("verifyOverlay").classList.remove("active");
-  verifyAction = null; verifyMessageText = "";
-  setTimeout(() => {
-    pendingAction = action; pendingMsgChoice = msg;
-    document.getElementById("confirmPreview").textContent = msg;
-    const list = document.getElementById("confirmMsgList");
-    list.querySelectorAll(".radio-item").forEach(el => {
-      const input = el.querySelector("input");
-      if (input && input.value === msg) { input.checked = true; el.classList.add("selected"); }
-      else el.classList.remove("selected");
-    });
-    document.getElementById("confirmOverlay").classList.add("active");
-  }, 200);
+  openWhatsApp(message);
+  showToast({login: "Work day started", lunch: "Lunch started · work timer continues", back: "Lunch completed", logout: "Day saved"}[action]);
 }
 let notifTimers = [];
 function scheduleNotifications() {
@@ -1241,12 +1243,12 @@ function scheduleNotifications() {
   if (!isNotifEnabled()) return;
   const s = getTodaySession();
   if (!s || !s.login || s.status === "loggedout") return;
-  const ws = getWorkSettings();
+  const ws = s.workSettings || getWorkSettings();
   const loginTime = new Date(s.login).getTime();
   const now = new Date();
   const lunchTarget = new Date(); lunchTarget.setHours(13,0,0,0);
-  const lunchNotifTime = lunchTarget.getTime() - 10 * 60000;
-  if (lunchNotifTime > now.getTime()) notifTimers.push(setTimeout(() => sendNativeNotification("🍽️ Lunch in 10 min", "Time to take your lunch break soon.", "wl-lunch"), lunchNotifTime - now.getTime()));
+  const lunchNotifTime = lunchTarget.getTime();
+  if (!s.lunch && lunchNotifTime > now.getTime()) notifTimers.push(setTimeout(() => sendNativeNotification("Get ready for lunch", "Time to take your lunch break soon.", "wl-lunch"), lunchNotifTime - now.getTime()));
   if (s.lunch && !s.back) {
     const lunchStart = new Date(s.lunch).getTime();
     const breakMs = ((ws.breakHours * 60) + ws.breakMins) * 60000;
@@ -1254,7 +1256,7 @@ function scheduleNotifications() {
     if (backNotif > now.getTime()) notifTimers.push(setTimeout(() => sendNativeNotification("🔙 Back to work in 10 min", "Your break ends in 10 minutes.", "wl-back"), backNotif - now.getTime()));
   }
   const targetMs = ((ws.workHours * 60) + ws.workMins) * 60000;
-  const logoutTarget = loginTime + targetMs;
+  const logoutTarget = calcExpectedLogoutMs(s);
   const logoutNotif = logoutTarget - 10 * 60000;
   if (logoutNotif > now.getTime()) notifTimers.push(setTimeout(() => sendNativeNotification("🔴 EOD in 10 min", "Your shift ends in 10 minutes.", "wl-logout"), logoutNotif - now.getTime()));
   if (logoutTarget > now.getTime()) notifTimers.push(setTimeout(() => {
@@ -1811,6 +1813,9 @@ document.addEventListener("DOMContentLoaded", async () => {
   }
   localStorage.setItem("wl_app_version", APP_VERSION);
 
+  reconcileSessions();
+  document.addEventListener("visibilitychange", () => { if (!document.hidden) { refreshDay(); scheduleNotifications(); } });
+  window.addEventListener("focus", () => { refreshDay(); scheduleNotifications(); });
   initAppearance();
   requestNotificationPermission();
   const un = document.getElementById("username");
@@ -1837,8 +1842,6 @@ document.addEventListener("DOMContentLoaded", async () => {
   document.getElementById("confirmOverlay").addEventListener("click", e => {
     if (e.target.id === "confirmOverlay") { document.getElementById("confirmOverlay").classList.remove("active"); pendingAction = null; }
   });
-  document.getElementById("verifyYes").addEventListener("click", confirmVerification);
-  document.getElementById("verifyNo").addEventListener("click", retryVerification);
   document.getElementById("saveWorkSettings").addEventListener("click", () => {
     set(KEYS.WORK_SETTINGS, {
       workHours: parseInt(document.getElementById("whHours").value) || 0,
