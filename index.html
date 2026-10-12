@@ -730,7 +730,7 @@ label { font-size: 0.72rem; font-weight: 700; color: var(--text-2); display: blo
 <div class="toast" id="toast"></div>
 
 <script>
-let APP_VERSION = "0.0";
+const APP_VERSION = "1.1";
 const LEGACY_VERSIONS = ["15.0", "15.1", "15.2", "15.3", "15.4", "15.5"];
 const KEYS = {
   USER: "wl_user", THEME: "wl_theme", ACCENT: "wl_accent", FONT: "wl_font",
@@ -1790,11 +1790,6 @@ function restoreJson(file) {
   reader.readAsText(file);
 }
 document.addEventListener("DOMContentLoaded", async () => {
-  const latestVersion = await fetchLatestVersion();
-  if (latestVersion) {
-    APP_VERSION = latestVersion;
-  }
-
   const versionEl = document.getElementById("loginVersion");
   if (versionEl) versionEl.textContent = "v" + APP_VERSION + " · Made with ⚡ in India";
 
@@ -1813,8 +1808,9 @@ document.addEventListener("DOMContentLoaded", async () => {
   }
   localStorage.setItem("wl_app_version", APP_VERSION);
 
+  checkForUpdates(true);
   reconcileSessions();
-  document.addEventListener("visibilitychange", () => { if (!document.hidden) { refreshDay(); scheduleNotifications(); } });
+  document.addEventListener("visibilitychange", () => { if (!document.hidden) { refreshDay(); scheduleNotifications(); checkForUpdates(true); } });
   window.addEventListener("focus", () => { refreshDay(); scheduleNotifications(); });
   initAppearance();
   requestNotificationPermission();
